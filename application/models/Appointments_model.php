@@ -86,7 +86,7 @@ class Appointments_model extends EA_Model {
             }
             catch (Exception $exception)
             {
-                throw new Exception('Calutil Create error' . $exception);
+                throw new Exception('Calutil Create() error' . $exception);
             }
         }
         else
@@ -94,6 +94,7 @@ class Appointments_model extends EA_Model {
             $data = array(
                 'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
                 'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'EventId' => $appointment['id_calutil'],
                 'EventStart' => $appointment['start_datetime'],
                 'EventEnd' => $appointment['end_datetime'],
                 'EventTimeZone' => 'America/Phoenix',
@@ -112,17 +113,14 @@ class Appointments_model extends EA_Model {
                 // catch the response
                 curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
 
-                $appointment['id_calutil'] = curl_exec($request);
-                
-                // no processing needed for the $response
-                
+                curl_exec($request);
+             
                 curl_close ($request);
             }
             catch (Exception $exception)
             {
-                throw new Exception('Calutil Create error' . $exception);
+                throw new Exception('Calutil Update() error' . $exception);
             }
-            // $this->update($appointment);
         }
         
         // Perform insert() or update() operation.
@@ -353,6 +351,37 @@ class Appointments_model extends EA_Model {
         if ( ! is_numeric($appointment_id))
         {
             throw new Exception('Invalid argument type $appointment_id (value:"' . $appointment_id . '")');
+        }
+
+        $appointment = $this->appointments_model->get_batch(['id' => $appointment_id]);
+
+        $data = array(
+            'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+            'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+            'EventId' => $appointment['id_calutil'],
+            'Comment' => 'Need to reschedule later',
+        );
+        
+        try
+        {
+            $query = json_encode($data); 
+            $request = curl_init();
+
+            curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Update");
+            curl_setopt($request, CURLOPT_POST, 1);
+            curl_setopt($request, CURLOPT_POSTFIELDS,
+                    $query);
+
+            // catch the response
+            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+
+            curl_exec($request);
+         
+            curl_close ($request);
+        }
+        catch (Exception $exception)
+        {
+            throw new Exception('Calutil Update() error' . $exception);
         }
 
         $num_rows = $this->db->get_where('appointments', ['id' => $appointment_id])->num_rows();
