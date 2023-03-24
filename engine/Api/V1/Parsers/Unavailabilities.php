@@ -37,7 +37,7 @@ class Unavailabilities implements ParsersInterface {
             'providerId' => array_key_exists('id_users_provider', $response)
                 ? (int)$response['id_users_provider']
                 : NULL,
-                'googleCalendarId' => array_key_exists('id_google_calendar', $response)
+            'googleCalendarId' => array_key_exists('id_google_calendar', $response)
                 ? (int)$response['id_google_calendar']
                 : NULL
         ];
