@@ -49,8 +49,9 @@ class Appointments_model extends EA_Model {
         $customer = $this->customers_model->get_row($appointment['id_users_customer']);
         $company_name = $this->settings_model->get_setting('company_name');
 
-        // Perform insert() or update() Calutil operation.
-        if ( ! isset($appointment['id_calutil']))
+        // Perform insert() or update() Calutil operation. We are using id_google_calendar to store the
+        // calutil event id.
+        if ( ! isset($appointment['id_google_calendar']))
         {
             $data = array(
                 'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
@@ -78,7 +79,7 @@ class Appointments_model extends EA_Model {
                 // catch the response
                 curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
 
-                $appointment['id_calutil'] = curl_exec($request);
+                $appointment['id_google_calendar'] = curl_exec($request);
                 
                 // no processing needed for the $response
                 
@@ -94,7 +95,7 @@ class Appointments_model extends EA_Model {
             $data = array(
                 'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
                 'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-                'EventId' => $appointment['id_calutil'],
+                'EventId' => $appointment['id_google_calendar'],
                 'EventStart' => $appointment['start_datetime'],
                 'EventEnd' => $appointment['end_datetime'],
                 'EventTimeZone' => 'America/Phoenix',
@@ -351,37 +352,6 @@ class Appointments_model extends EA_Model {
         if ( ! is_numeric($appointment_id))
         {
             throw new Exception('Invalid argument type $appointment_id (value:"' . $appointment_id . '")');
-        }
-
-        $appointment = $this->appointments_model->get_batch(['id' => $appointment_id]);
-
-        $data = array(
-            'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-            'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-            'EventId' => $appointment['id_calutil'],
-            'Comment' => 'Need to reschedule later',
-        );
-        
-        try
-        {
-            $query = json_encode($data); 
-            $request = curl_init();
-
-            curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Update");
-            curl_setopt($request, CURLOPT_POST, 1);
-            curl_setopt($request, CURLOPT_POSTFIELDS,
-                    $query);
-
-            // catch the response
-            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-
-            curl_exec($request);
-         
-            curl_close ($request);
-        }
-        catch (Exception $exception)
-        {
-            throw new Exception('Calutil Update() error' . $exception);
         }
 
         $num_rows = $this->db->get_where('appointments', ['id' => $appointment_id])->num_rows();
