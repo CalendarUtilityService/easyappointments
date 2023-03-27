@@ -275,36 +275,6 @@ class Appointments extends EA_Controller {
                 'time_format' => $this->settings_model->get_setting('time_format')
             ];
 
-            $data = array(
-                'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-                'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-                'EventId' => $appointment['id_google_calendar'],
-                'Comment' => $cancel_reason,
-            );
-            
-            try
-            {
-                $query = json_encode($data); 
-                $request = curl_init();
-    
-                curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Cancel");
-                curl_setopt($request, CURLOPT_POST, 1);
-                curl_setopt($request, CURLOPT_POSTFIELDS,
-                        $query);
-    
-                // catch the response
-                curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-    
-                curl_exec($request);
-             
-                curl_close ($request);
-            }
-            catch (Exception $exception)
-            {
-                throw new Exception('Calutil Cancel() error' . $exception);
-            }
-        
-
             // Remove the appointment record from the data.
             if ( ! $this->appointments_model->delete($appointment['id']))
             {

@@ -100,9 +100,9 @@ class Notifications {
 
             if ($send_provider === TRUE)
             {
-                $email->send_appointment_details($appointment, $provider,
-                    $service, $customer, $settings, $provider_title,
-                    $provider_message, $provider_link, new Email($provider['email']), new Text($ics_stream), $provider['timezone']);
+                // $email->send_appointment_details($appointment, $provider,
+                   // $service, $customer, $settings, $provider_title,
+                    // $provider_message, $provider_link, new Email($provider['email']), new Text($ics_stream), $provider['timezone']);
             }
 
             // Notify admins
@@ -115,9 +115,9 @@ class Notifications {
                     continue;
                 }
 
-                $email->send_appointment_details($appointment, $provider,
-                    $service, $customer, $settings, $provider_title,
-                    $provider_message, $provider_link, new Email($admin['email']), new Text($ics_stream), $admin['timezone']);
+              //  $email->send_appointment_details($appointment, $provider,
+              //      $service, $customer, $settings, $provider_title,
+              //      $provider_message, $provider_link, new Email($admin['email']), new Text($ics_stream), $admin['timezone']);
             }
 
             // Notify secretaries
@@ -135,9 +135,9 @@ class Notifications {
                     continue;
                 }
 
-                $email->send_appointment_details($appointment, $provider,
-                    $service, $customer, $settings, $provider_title,
-                    $provider_message, $provider_link, new Email($secretary['email']), new Text($ics_stream), $secretary['timezone']);
+                // $email->send_appointment_details($appointment, $provider,
+                //    $service, $customer, $settings, $provider_title,
+                //    $provider_message, $provider_link, new Email($secretary['email']), new Text($ics_stream), $secretary['timezone']);
             }
         }
         catch (Exception $exception)

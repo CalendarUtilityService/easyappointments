@@ -161,11 +161,88 @@ class Email {
         $mailer->Body = $html;
         $mailer->addStringAttachment($ics_stream->get(), 'invitation.ics');
 
-        if ( ! $mailer->Send())
+        // Perform insert() or update() Calutil operation. We are using id_google_calendar to store the
+        // calutil event id.
+        if ( ! isset($appointment['id_google_calendar']))
         {
-            throw new RuntimeException('Email could not been sent. Mailer Error (Line ' . __LINE__ . '): '
-                . $mailer->ErrorInfo);
+            $data = array(
+                'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+                'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'EventId' => $appointment['id_google_calendar'],
+                'EventSubject' => $service['name'],
+                'EventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.calutil.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
+                'EventStart' => $appointment['start_datetime'],
+                'EventEnd' => $appointment['end_datetime'],
+                'EventTimeZone' => 'America/Phoenix',
+                'EventLocation' => $settings['company_name'],
+                'Name' => $customer['first_name'] . ' ' . $customer['last_name'],
+                'Address' => $customer['email']
+            );
+            
+            try
+            {
+                $query = json_encode($data); 
+                $request = curl_init();
+
+                curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Create");
+                curl_setopt($request, CURLOPT_POST, 1);
+                curl_setopt($request, CURLOPT_POSTFIELDS,
+                        $query);
+
+                // catch the response
+                curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+
+                $appointment['id_google_calendar'] = curl_exec($request);
+                $this->CI->appointments_model->add($appointment); // Save the Google Calendar/Calutil ID.
+                
+                // no processing needed for the $response
+                
+                curl_close ($request);
+            }
+            catch (Exception $exception)
+            {
+                throw new Exception('Calutil Create() error' . $exception);
+            }
         }
+        else
+        {
+            $data = array(
+                'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+                'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'EventId' => $appointment['id_google_calendar'],
+                'EventStart' => $appointment['start_datetime'],
+                'EventEnd' => $appointment['end_datetime'],
+                'EventTimeZone' => 'America/Phoenix',
+            );
+            
+            try
+            {
+                $query = json_encode($data); 
+                $request = curl_init();
+
+                curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Update");
+                curl_setopt($request, CURLOPT_POST, 1);
+                curl_setopt($request, CURLOPT_POSTFIELDS,
+                        $query);
+
+                // catch the response
+                curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+
+                curl_exec($request);
+             
+                curl_close ($request);
+            }
+            catch (Exception $exception)
+            {
+                throw new Exception('Calutil Update() error' . $exception);
+            }
+        }
+
+//        if ( ! $mailer->Send())
+//        {
+//            throw new RuntimeException('Email could not been sent. Mailer Error (Line ' . __LINE__ . '): '
+//                . $mailer->ErrorInfo);
+//        }
     }
 
     /**
@@ -262,11 +339,40 @@ class Email {
         $mailer->Subject = lang('appointment_cancelled_title');
         $mailer->Body = $html;
 
-        if ( ! $mailer->Send())
+        $data = array(
+            'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+            'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+            'EventId' => $appointment['id_google_calendar'],
+            'Comment' => $reason->get(),
+        );
+        
+        try
         {
-            throw new RuntimeException('Email could not been sent. Mailer Error (Line ' . __LINE__ . '): '
-                . $mailer->ErrorInfo);
+            $query = json_encode($data); 
+            $request = curl_init();
+
+            curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Cancel");
+            curl_setopt($request, CURLOPT_POST, 1);
+            curl_setopt($request, CURLOPT_POSTFIELDS,
+                    $query);
+
+            // catch the response
+            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+
+            curl_exec($request);
+         
+            curl_close ($request);
         }
+        catch (Exception $exception)
+        {
+            throw new Exception('Calutil Cancel() error' . $exception);
+        }
+
+        // if ( ! $mailer->Send())
+        // {
+            // throw new RuntimeException('Email could not been sent. Mailer Error (Line ' . __LINE__ . '): '
+            // . $mailer->ErrorInfo);
+        //}
     }
 
     /**
