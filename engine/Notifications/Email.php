@@ -166,17 +166,17 @@ class Email {
         if ( ! isset($appointment['id_google_calendar']))
         {
             $data = array(
-                'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-                'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-                'EventId' => $appointment['id_google_calendar'],
-                'EventSubject' => $service['name'],
-                'EventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.calutil.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
-                'EventStart' => $appointment['start_datetime'],
-                'EventEnd' => $appointment['end_datetime'],
-                'EventTimeZone' => 'America/Phoenix',
-                'EventLocation' => $settings['company_name'],
-                'Name' => $customer['first_name'] . ' ' . $customer['last_name'],
-                'Address' => $customer['email']
+                'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+                'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'eventId' => $appointment['id_google_calendar'],
+                'eventSubject' => $service['name'],
+                'eventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.calutil.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
+                'eventStart' => $appointment['start_datetime'],
+                'eventEnd' => $appointment['end_datetime'],
+                'eventTimeZone' => 'America/Phoenix',
+                'eventLocation' => $settings['company_name'],
+                'name' => $customer['first_name'] . ' ' . $customer['last_name'],
+                'address' => $customer['email']
             );
             
             try
@@ -184,7 +184,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Create");
+                curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/Create");
                 curl_setopt($request, CURLOPT_POST, 1);
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
@@ -207,12 +207,12 @@ class Email {
         else
         {
             $data = array(
-                'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-                'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-                'EventId' => $appointment['id_google_calendar'],
-                'EventStart' => $appointment['start_datetime'],
-                'EventEnd' => $appointment['end_datetime'],
-                'EventTimeZone' => 'America/Phoenix',
+                'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+                'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'eventId' => $appointment['id_google_calendar'],
+                'eventStart' => $appointment['start_datetime'],
+                'eventEnd' => $appointment['end_datetime'],
+                'eventTimeZone' => 'America/Phoenix',
             );
             
             try
@@ -220,7 +220,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Update");
+                curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/Update");
                 curl_setopt($request, CURLOPT_POST, 1);
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
@@ -340,10 +340,10 @@ class Email {
         $mailer->Body = $html;
 
         $data = array(
-            'ApiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-            'ApiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
-            'EventId' => $appointment['id_google_calendar'],
-            'Comment' => $reason->get(),
+            'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
+            'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+            'eventId' => $appointment['id_google_calendar'],
+            'comment' => $reason->get(),
         );
         
         try
@@ -351,7 +351,7 @@ class Email {
             $query = json_encode($data); 
             $request = curl_init();
 
-            curl_setopt($request, CURLOPT_URL,"https://accoutfunctions20230312.azurewebsites.net/api/Cancel");
+            curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/Cancel");
             curl_setopt($request, CURLOPT_POST, 1);
             curl_setopt($request, CURLOPT_POSTFIELDS,
                     $query);
