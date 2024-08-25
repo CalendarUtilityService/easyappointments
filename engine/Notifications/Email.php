@@ -161,7 +161,7 @@ class Email {
         $mailer->Body = $html;
         $mailer->addStringAttachment($ics_stream->get(), 'invitation.ics');
 
-        // Perform insert() or update() ScheduCalal operation. We are using id_google_calendar to store the
+        // Perform insert() or update() ScheduCal operation. We are using id_google_calendar to store the
         // scheducal event id.
         if ( ! isset($appointment['id_google_calendar']))
         {
@@ -193,7 +193,7 @@ class Email {
                 curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
 
                 $appointment['id_google_calendar'] = curl_exec($request);
-                $this->CI->appointments_model->add($appointment); // Save the Google Calendar/ScheduCalal ID.
+                $this->CI->appointments_model->add($appointment); // Save the Google Calendar/ScheduCal ID.
                 
                 // no processing needed for the $response
                 
@@ -201,7 +201,7 @@ class Email {
             }
             catch (Exception $exception)
             {
-                throw new Exception('ScheduCalal Create() error' . $exception);
+                throw new Exception('ScheduCal Create() error' . $exception);
             }
         }
         else
@@ -234,7 +234,7 @@ class Email {
             }
             catch (Exception $exception)
             {
-                throw new Exception('ScheduCalal Update() error' . $exception);
+                throw new Exception('ScheduCal Update() error' . $exception);
             }
         }
 
@@ -365,7 +365,7 @@ class Email {
         }
         catch (Exception $exception)
         {
-            throw new Exception('ScheduCalal Cancel() error' . $exception);
+            throw new Exception('ScheduCal Cancel() error' . $exception);
         }
 
         // if ( ! $mailer->Send())
