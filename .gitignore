@@ -1,4 +1,5 @@
 node_modules
-/storage/sessions
 vendor
-
+/storage/sessions
+/vendor/
+composer.phar
