@@ -30,7 +30,7 @@ class Config {
     // GENERAL SETTINGS
     // ------------------------------------------------------------------------
 
-    const BASE_URL      = 'https://demo.calutil.com/easyappointments';
+    const BASE_URL      = 'https://demo.scheducal.com/easyappointments';
     const LANGUAGE      = 'english';
     const DEBUG_MODE    = FALSE;
 

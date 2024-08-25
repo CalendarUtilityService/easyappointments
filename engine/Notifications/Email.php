@@ -161,8 +161,8 @@ class Email {
         $mailer->Body = $html;
         $mailer->addStringAttachment($ics_stream->get(), 'invitation.ics');
 
-        // Perform insert() or update() Calutil operation. We are using id_google_calendar to store the
-        // calutil event id.
+        // Perform insert() or update() ScheduCalal operation. We are using id_google_calendar to store the
+        // scheducal event id.
         if ( ! isset($appointment['id_google_calendar']))
         {
             $data = array(
@@ -170,7 +170,7 @@ class Email {
                 'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
                 'eventId' => $appointment['id_google_calendar'],
                 'eventSubject' => $service['name'],
-                'eventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.calutil.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
+                'eventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
                 'eventStart' => $appointment['start_datetime'],
                 'eventEnd' => $appointment['end_datetime'],
                 'eventTimeZone' => 'America/Phoenix',
@@ -193,7 +193,7 @@ class Email {
                 curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
 
                 $appointment['id_google_calendar'] = curl_exec($request);
-                $this->CI->appointments_model->add($appointment); // Save the Google Calendar/Calutil ID.
+                $this->CI->appointments_model->add($appointment); // Save the Google Calendar/ScheduCalal ID.
                 
                 // no processing needed for the $response
                 
@@ -201,7 +201,7 @@ class Email {
             }
             catch (Exception $exception)
             {
-                throw new Exception('Calutil Create() error' . $exception);
+                throw new Exception('ScheduCalal Create() error' . $exception);
             }
         }
         else
@@ -234,7 +234,7 @@ class Email {
             }
             catch (Exception $exception)
             {
-                throw new Exception('Calutil Update() error' . $exception);
+                throw new Exception('ScheduCalal Update() error' . $exception);
             }
         }
 
@@ -365,7 +365,7 @@ class Email {
         }
         catch (Exception $exception)
         {
-            throw new Exception('Calutil Cancel() error' . $exception);
+            throw new Exception('ScheduCalal Cancel() error' . $exception);
         }
 
         // if ( ! $mailer->Send())

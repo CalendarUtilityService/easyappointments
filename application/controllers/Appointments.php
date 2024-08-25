@@ -577,7 +577,7 @@ class Appointments extends EA_Controller {
             $appointment['is_unavailable'] = (int)$appointment['is_unavailable']; // needs to be type casted
             
             // A frickin' brilliant hack if you ask me. For a reason I don't understand, $appointment doesn't
-            // have the google calendar id (that we are using for Calutil EventId), so we get it from the DB 
+            // have the google calendar id (that we are using for ScheduCalal EventId), so we get it from the DB 
             // and then save it (again).
             if (isset($appointment['id']))
             {   
