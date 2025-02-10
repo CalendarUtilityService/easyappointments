@@ -166,8 +166,8 @@ class Email {
         if ( ! isset($appointment['id_google_calendar']))
         {
             $data = array(
-                'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-                'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'apiKey' => '1d8db2db-dd73-4543-8763-d3ec90ac3630',
+                'apiSecret' => '13459b3a-9aa7-4245-81bb-c8e2b7f79ee3',
                 'eventId' => $appointment['id_google_calendar'],
                 'eventSubject' => $service['name'],
                 'eventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
@@ -207,8 +207,8 @@ class Email {
         else
         {
             $data = array(
-                'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-                'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+                'apiKey' => '1d8db2db-dd73-4543-8763-d3ec90ac3630',
+                'apiSecret' => '13459b3a-9aa7-4245-81bb-c8e2b7f79ee3',
                 'eventId' => $appointment['id_google_calendar'],
                 'eventStart' => $appointment['start_datetime'],
                 'eventEnd' => $appointment['end_datetime'],
@@ -340,8 +340,8 @@ class Email {
         $mailer->Body = $html;
 
         $data = array(
-            'apiKey' => '2d11c80b-e8c0-486f-9dfb-6ff054d06f7a',
-            'apiSecret' => '9609b3fd-3ba7-4992-a4ad-5e8aeefdf438',
+            'apiKey' => '1d8db2db-dd73-4543-8763-d3ec90ac3630',
+            'apiSecret' => '13459b3a-9aa7-4245-81bb-c8e2b7f79ee3',
             'eventId' => $appointment['id_google_calendar'],
             'comment' => $reason->get(),
         );
