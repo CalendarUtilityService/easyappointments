@@ -419,6 +419,8 @@
     </div>
 </div>
 
+<?php require 'welcome_modal.php' ?>
+
 <?php if ($display_cookie_notice === '1'): ?>
     <?php require 'cookie_notice_modal.php' ?>
 <?php endif ?>

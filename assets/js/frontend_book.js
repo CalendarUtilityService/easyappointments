@@ -57,6 +57,12 @@ window.FrontendBook = window.FrontendBook || {};
         defaultEventHandlers = defaultEventHandlers || true;
         manageMode = manageMode || false;
 
+        // Show welcome modal on first visit
+        if (!localStorage.getItem('scheducal_welcome_shown')) {
+            $('#welcome-modal').modal('show');
+            localStorage.setItem('scheducal_welcome_shown', 'true');
+        }
+
         if (GlobalVariables.displayCookieNotice && window.cookieconsent) {
             cookieconsent.initialise({
                 palette: {
