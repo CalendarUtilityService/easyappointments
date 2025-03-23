@@ -8,7 +8,7 @@
             <div class="modal-body">
                 <p>
                     This is a version of the open source appointment software EasyAppointments that has been modified to work with SheduCal. 
-                    The original version sends out emails with ICS files. This version sends calendar appointments directly to your calendar.
+                    The original version <a href="https://demo.easyappointments.org/" target="_blank">(here)</a> sends out emails with ICS files. This version sends calendar appointments directly to your calendar.
                 </p>
                 <p>
                     <strong>NOTE: all data is periodically deleted from this site. It is for testing purposes only!</strong>
@@ -18,7 +18,20 @@
                 <button type="button" class="btn btn-primary" data-dismiss="modal">
                     Got it!
                 </button>
+                <!-- Remove this button when you confirm the modal is working -->
+                <button type="button" id="test-reset-welcome" class="btn btn-secondary" style="display:none;">
+                    Reset (Testing)
+                </button>
             </div>
+            <script>
+                $(document).ready(function() {
+                    // Add event handler for test button
+                    $('#test-reset-welcome').on('click', function() {
+                        localStorage.removeItem('scheducal_welcome_shown');
+                        alert('Welcome modal reset! Refresh the page to see it again.');
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>

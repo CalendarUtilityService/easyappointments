@@ -453,6 +453,17 @@
 
     var EALang = <?= json_encode($this->lang->language) ?>;
     var availableLanguages = <?= json_encode(config('available_languages')) ?>;
+    
+    // Debug function to test the welcome modal
+    window.resetWelcomeModal = function() {
+        localStorage.removeItem('scheducal_welcome_shown');
+        console.log('Welcome modal reset. Refresh the page to see it.');
+    };
+    
+    window.showWelcomeModal = function() {
+        $('#welcome-modal').modal('show');
+        console.log('Welcome modal shown manually.');
+    };
 </script>
 
 <script src="<?= asset_url('assets/js/general_functions.js') ?>"></script>
@@ -472,6 +483,14 @@
     $(function () {
         FrontendBook.initialize(true, GlobalVariables.manageMode);
         GeneralFunctions.enableLanguageSelection($('#select-language'));
+        
+        // Additional check for the welcome modal
+        if (!localStorage.getItem('scheducal_welcome_shown')) {
+            setTimeout(function() {
+                $('#welcome-modal').modal('show');
+                localStorage.setItem('scheducal_welcome_shown', 'true');
+            }, 1000);
+        }
     });
 </script>
 

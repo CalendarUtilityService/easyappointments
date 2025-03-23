@@ -58,10 +58,15 @@ window.FrontendBook = window.FrontendBook || {};
         manageMode = manageMode || false;
 
         // Show welcome modal on first visit
-        if (!localStorage.getItem('scheducal_welcome_shown')) {
-            $('#welcome-modal').modal('show');
-            localStorage.setItem('scheducal_welcome_shown', 'true');
-        }
+        $(document).ready(function() {
+            // Make sure the DOM is fully loaded before showing modal
+            setTimeout(function() {
+                if (!localStorage.getItem('scheducal_welcome_shown')) {
+                    $('#welcome-modal').modal('show');
+                    localStorage.setItem('scheducal_welcome_shown', 'true');
+                }
+            }, 500);
+        });
 
         if (GlobalVariables.displayCookieNotice && window.cookieconsent) {
             cookieconsent.initialise({
