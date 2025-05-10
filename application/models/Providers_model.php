@@ -722,6 +722,17 @@ class Providers_model extends EA_Model {
      */
     public function get_row($provider_id)
     {
+        if ($provider_id === ANY_PROVIDER || $provider_id === 'any-provider')
+        {
+            // Get the first available provider
+            $available_providers = $this->get_available_providers();
+            if (!empty($available_providers)) {
+                $provider_id = $available_providers[0]['id'];
+            } else {
+                throw new Exception('No available providers found in the system.');
+            }
+        }
+
         if ( ! is_numeric($provider_id))
         {
             throw new Exception('$provider_id argument is not a valid numeric value: ' . $provider_id);
