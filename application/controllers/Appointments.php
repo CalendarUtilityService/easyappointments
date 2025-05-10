@@ -430,16 +430,33 @@ class Appointments extends EA_Controller {
             // that will provide the requested service.
             if ($provider_id === ANY_PROVIDER)
             {
+                // Try to find a provider that can handle this service
                 $provider_id = $this->search_any_provider($service_id, $selected_date);
 
+                // If we couldn't find a valid provider, try to get any provider
                 if ($provider_id === NULL)
                 {
-                    $this->output
-                        ->set_content_type('application/json')
-                        ->set_output(json_encode([]));
-
-                    return;
+                    $available_providers = $this->providers_model->get_available_providers();
+                    if (!empty($available_providers)) {
+                        // Just get the first provider if no specific match was found
+                        $provider_id = $available_providers[0]['id'];
+                    } else {
+                        // No providers available at all
+                        $this->output
+                            ->set_content_type('application/json')
+                            ->set_output(json_encode([]));
+                        return;
+                    }
                 }
+            }
+
+            // Double-check that provider_id is valid at this point
+            if (!is_numeric($provider_id)) {
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([]));
+
+                return;
             }
 
             $service = $this->services_model->get_row($service_id);
@@ -480,6 +497,11 @@ class Appointments extends EA_Controller {
     {
         $available_providers = $this->providers_model->get_available_providers();
 
+        // Make sure we have providers before continuing
+        if (empty($available_providers)) {
+            return NULL;
+        }
+
         $service = $this->services_model->get_row($service_id);
 
         $provider_id = NULL;
@@ -500,6 +522,16 @@ class Appointments extends EA_Controller {
                         $provider_id = $provider['id'];
                         $max_hours_count = count($available_hours);
                     }
+                }
+            }
+        }
+
+        // If no provider was found with availability, return the first provider who offers this service
+        if ($provider_id === NULL) {
+            foreach ($available_providers as $provider) {
+                if (in_array($service_id, $provider['services'])) {
+                    $provider_id = $provider['id'];
+                    break;
                 }
             }
         }
@@ -648,9 +680,17 @@ class Appointments extends EA_Controller {
         $date = $appointment_start->format('Y-m-d');
         $hour = $appointment_start->format('H:i');
 
-        if ($appointment['id_users_provider'] === ANY_PROVIDER)
+        if ($appointment['id_users_provider'] === ANY_PROVIDER || $appointment['id_users_provider'] === '' || empty($appointment['id_users_provider']))
         {
             $appointment['id_users_provider'] = $this->search_any_provider($appointment['id_services'], $date, $hour);
+
+            // If we still don't have a provider, get the first available one
+            if ($appointment['id_users_provider'] === NULL) {
+                $available_providers = $this->providers_model->get_available_providers();
+                if (!empty($available_providers)) {
+                    $appointment['id_users_provider'] = $available_providers[0]['id'];
+                }
+            }
 
             return $appointment['id_users_provider'];
         }

@@ -722,7 +722,8 @@ class Providers_model extends EA_Model {
      */
     public function get_row($provider_id)
     {
-        if ($provider_id === ANY_PROVIDER || $provider_id === 'any-provider')
+        // For debugging purposes, let's add more information about the type of $provider_id
+        if (is_string($provider_id) && ($provider_id === ANY_PROVIDER || $provider_id === 'any-provider' || $provider_id === ''))
         {
             // Get the first available provider
             $available_providers = $this->get_available_providers();
@@ -733,9 +734,27 @@ class Providers_model extends EA_Model {
             }
         }
 
+        // Handle the case where $provider_id might be a non-numeric value or null
+        if ($provider_id === NULL)
+        {
+            throw new Exception('$provider_id argument is NULL');
+        }
+
+        // Handle whitespace strings
+        if (is_string($provider_id) && trim($provider_id) === '')
+        {
+            // Get the first available provider as a fallback
+            $available_providers = $this->get_available_providers();
+            if (!empty($available_providers)) {
+                $provider_id = $available_providers[0]['id'];
+            } else {
+                throw new Exception('Cannot use empty provider_id and no available providers found.');
+            }
+        }
+
         if ( ! is_numeric($provider_id))
         {
-            throw new Exception('$provider_id argument is not a valid numeric value: ' . $provider_id);
+            throw new Exception('$provider_id argument is not a valid numeric value: ' . $provider_id . ' (type: ' . gettype($provider_id) . ')');
         }
 
         // Check if selected record exists on database.
