@@ -184,7 +184,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/Create");
+                curl_setopt($request, CURLOPT_URL,"https://func-schedcal-prod-wus2-01-account.azurewebsites.net/api/Create");
                 curl_setopt($request, CURLOPT_POST, 1);
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
