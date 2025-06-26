@@ -213,8 +213,9 @@ class Email {
         else
         {
             $data = array(
-                'apiKey' => '1d8db2db-dd73-4543-8763-d3ec90ac3630',
-                'apiSecret' => '13459b3a-9aa7-4245-81bb-c8e2b7f79ee3',
+                'apiKey' => '76ae5104-c497-434b-9a52-83186e69ca41',
+                'apiSecret' => 'c64d157a-58ef-4e60-84b2-00a13d2b2f39',
+                'eventId' => $appointment['id_google_calendar'],
                 'eventStart' => $appointment['start_datetime'],
                 'eventEnd' => $appointment['end_datetime'],
                 'eventTimeZone' => 'America/Phoenix',
@@ -225,7 +226,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/events/" . urlencode($appointment['id_google_calendar']));
+                curl_setopt($request, CURLOPT_URL,"https://func-schedcal-prod-wus2-01-account.azurewebsites.net/api/events/" . urlencode($appointment['id_google_calendar']));
                 curl_setopt($request, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
@@ -345,8 +346,9 @@ class Email {
         $mailer->Body = $html;
 
         $data = array(
-            'apiKey' => '1d8db2db-dd73-4543-8763-d3ec90ac3630',
-            'apiSecret' => '13459b3a-9aa7-4245-81bb-c8e2b7f79ee3',
+            'apiKey' => '76ae5104-c497-434b-9a52-83186e69ca41',
+            'apiSecret' => 'c64d157a-58ef-4e60-84b2-00a13d2b2f39',
+            'eventId' => $appointment['id_google_calendar'],
             'comment' => $reason->get(),
         );
         
@@ -355,7 +357,7 @@ class Email {
             $query = json_encode($data); 
             $request = curl_init();
 
-            curl_setopt($request, CURLOPT_URL,"https://accountfunctions-01a.azurewebsites.net/api/events/" . urlencode($appointment['id_google_calendar']));
+            curl_setopt($request, CURLOPT_URL,"https://func-schedcal-prod-wus2-01-account.azurewebsites.net/api/events/" . urlencode($appointment['id_google_calendar']));
             curl_setopt($request, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($request, CURLOPT_POSTFIELDS,
                     $query);
