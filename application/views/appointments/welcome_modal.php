@@ -8,10 +8,14 @@
             <div class="modal-body">
                 <p>
                     This is a version of the open source appointment software EasyAppointments that has been modified to work with SheduCal. 
-                    The original version <a href="https://demo.easyappointments.org/" target="_blank">(here)</a> sends out emails with ICS files. This version sends calendar appointments directly to your calendar.
+                    The original version <a href="https://demo.easyappointments.org/" target="_blank">(here)</a> sends out emails with ICS files. 
+                    This version sends calendar appointments directly to your calendar.
                 </p>
                 <p>
-                    <strong>NOTE: all data is periodically deleted from this site. It is for testing purposes only!</strong>
+                    NOTE: all data is periodically deleted from this site. It is intended for testing purposes only.
+                </p>
+                <p>
+                    <strong>If you don't receive appointments in your inbox, please check your spam folder.</strong>
                 </p>
             </div>
             <div class="modal-footer">
