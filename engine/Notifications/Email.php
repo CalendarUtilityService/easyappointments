@@ -184,7 +184,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/events");
+                curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/appointments");
                 curl_setopt($request, CURLOPT_POST, 1);
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
@@ -226,7 +226,7 @@ class Email {
                 $query = json_encode($data); 
                 $request = curl_init();
 
-                curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/events/" . urlencode($appointment['id_google_calendar']));
+                curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/appointments/" . urlencode($appointment['id_google_calendar']));
                 curl_setopt($request, CURLOPT_CUSTOMREQUEST, "PUT");
                 curl_setopt($request, CURLOPT_POSTFIELDS,
                         $query);
@@ -357,7 +357,7 @@ class Email {
             $query = json_encode($data); 
             $request = curl_init();
 
-            curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/events/" . urlencode($appointment['id_google_calendar']));
+            curl_setopt($request, CURLOPT_URL,"https://apim-schedcal-prod-wus2-01.azure-api.net/api/v1/appointments/" . urlencode($appointment['id_google_calendar']));
             curl_setopt($request, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($request, CURLOPT_POSTFIELDS,
                     $query);
