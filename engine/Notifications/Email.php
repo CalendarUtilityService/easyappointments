@@ -170,11 +170,11 @@ class Email {
                 'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
                 'eventId' => $appointment['id_google_calendar'],
                 'eventSubject' => $service['name'],
-                'eventBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
-                'eventStart' => $appointment['start_datetime'],
-                'eventEnd' => $appointment['end_datetime'],
-                'eventTimeZone' => 'America/Phoenix',
-                'eventLocation' => $settings['company_name'],
+                'appointmentBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
+                'appointmentStart' => $appointment['start_datetime'],
+                'appointmentEnd' => $appointment['end_datetime'],
+                'appointmentTimeZone' => 'America/Phoenix',
+                'appointmentLocation' => $settings['company_name'],
                 'name' => $customer['first_name'] . ' ' . $customer['last_name'],
                 'address' => $customer['email']
             );
