@@ -168,8 +168,8 @@ class Email {
             $data = array(
                 'apiKey' => '82acd8ec-526d-4e37-88e7-4d2d46074115',
                 'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
-                'eventId' => $appointment['id_google_calendar'],
-                'eventSubject' => $service['name'],
+                'appointmentId' => $appointment['id_google_calendar'],
+                'appointmentSubject' => $service['name'],
                 'appointmentBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
                 'appointmentStart' => $appointment['start_datetime'],
                 'appointmentEnd' => $appointment['end_datetime'],
@@ -195,8 +195,8 @@ class Email {
                 $response = curl_exec($request);
                 $response_data = json_decode($response, true);
                 
-                if ($response_data && isset($response_data['data']['eventId'])) {
-                    $appointment['id_google_calendar'] = trim($response_data['data']['eventId']);
+                if ($response_data && isset($response_data['data']['appointmentId'])) {
+                    $appointment['id_google_calendar'] = trim($response_data['data']['appointmentId']);
                 } else {
                     $appointment['id_google_calendar'] = $response; // fallback for old format
                 }
@@ -215,10 +215,10 @@ class Email {
             $data = array(
                 'apiKey' => '82acd8ec-526d-4e37-88e7-4d2d46074115',
                 'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
-                'eventId' => $appointment['id_google_calendar'],
-                'eventStart' => $appointment['start_datetime'],
-                'eventEnd' => $appointment['end_datetime'],
-                'eventTimeZone' => 'America/Phoenix',
+                'appointmentId' => $appointment['id_google_calendar'],
+                'appointmentStart' => $appointment['start_datetime'],
+                'appointmentEnd' => $appointment['end_datetime'],
+                'appointmentTimeZone' => 'America/Phoenix',
             );
             
             try
@@ -348,7 +348,7 @@ class Email {
         $data = array(
             'apiKey' => '82acd8ec-526d-4e37-88e7-4d2d46074115',
             'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
-            'eventId' => $appointment['id_google_calendar'],
+            'appointmentId' => $appointment['id_google_calendar'],
             'comment' => $reason->get(),
         );
         
