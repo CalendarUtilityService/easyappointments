@@ -165,15 +165,22 @@ class Email {
         // scheducal event id.
         if ( ! isset($appointment['id_google_calendar']))
         {
+            // Convert to UTC for ScheduCal API (ISO 8601 UTC format required)
+            $utc_timezone = new DateTimeZone('UTC');
+            $appointment_start_utc = clone $appointment_start;
+            $appointment_end_utc = clone $appointment_end;
+            $appointment_start_utc->setTimezone($utc_timezone);
+            $appointment_end_utc->setTimezone($utc_timezone);
+
             $data = array(
                 'apiKey' => '82acd8ec-526d-4e37-88e7-4d2d46074115',
                 'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
                 'appointmentId' => $appointment['id_google_calendar'],
                 'appointmentSubject' => $service['name'],
                 'appointmentBody' => 'Appointment with ' . $provider['first_name'] . '.<br><br>Click <a href = "https://demo.scheducal.com/easyappointments/index.php/appointments/index/' . $appointment['hash'] . '">here</a> to manage this appointment.  '. $this->CI->appointments_model->tempTest,
-                'appointmentStart' => $appointment['start_datetime'],
-                'appointmentEnd' => $appointment['end_datetime'],
-                'appointmentTimeZone' => 'America/Phoenix',
+                'appointmentStart' => $appointment_start_utc->format('Y-m-d\TH:i:s'),
+                'appointmentEnd' => $appointment_end_utc->format('Y-m-d\TH:i:s'),
+                'appointmentTimeZone' => $provider['timezone'],
                 'appointmentLocation' => $settings['company_name'],
                 'name' => $customer['first_name'] . ' ' . $customer['last_name'],
                 'address' => $customer['email']
@@ -212,13 +219,20 @@ class Email {
         }
         else
         {
+            // Convert to UTC for ScheduCal API (ISO 8601 UTC format required)
+            $utc_timezone = new DateTimeZone('UTC');
+            $appointment_start_utc = clone $appointment_start;
+            $appointment_end_utc = clone $appointment_end;
+            $appointment_start_utc->setTimezone($utc_timezone);
+            $appointment_end_utc->setTimezone($utc_timezone);
+
             $data = array(
                 'apiKey' => '82acd8ec-526d-4e37-88e7-4d2d46074115',
                 'apiSecret' => '70b7e64b-2279-48be-b1ab-55ef15a99ab6',
                 'appointmentId' => $appointment['id_google_calendar'],
-                'appointmentStart' => $appointment['start_datetime'],
-                'appointmentEnd' => $appointment['end_datetime'],
-                'appointmentTimeZone' => 'America/Phoenix',
+                'appointmentStart' => $appointment_start_utc->format('Y-m-d\TH:i:s'),
+                'appointmentEnd' => $appointment_end_utc->format('Y-m-d\TH:i:s'),
+                'appointmentTimeZone' => $provider['timezone'],
             );
             
             try
