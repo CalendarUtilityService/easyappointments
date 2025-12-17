@@ -41,6 +41,7 @@ class Notifications
         $this->CI->load->library('email_messages');
         $this->CI->load->library('ics_file');
         $this->CI->load->library('timezones');
+        $this->CI->load->library('scheducal_sync');
     }
 
     /**
@@ -197,6 +198,37 @@ class Notifications
                     $this->log_exception($e, 'appointment-saved to secretary', $appointment['id'] ?? null);
                 }
             }
+
+            // Sync with ScheduCal if enabled
+            try {
+                if (empty($appointment['id_google_calendar'])) {
+                    // Create new appointment in ScheduCal
+                    $scheducal_id = $this->CI->scheducal_sync->create_appointment(
+                        $appointment,
+                        $provider,
+                        $service,
+                        $customer,
+                        $settings,
+                    );
+
+                    // Save the ScheduCal appointment ID
+                    if ($scheducal_id) {
+                        $appointment['id_google_calendar'] = $scheducal_id;
+                        $this->CI->appointments_model->save($appointment);
+                    }
+                } else {
+                    // Update existing appointment in ScheduCal
+                    $this->CI->scheducal_sync->update_appointment(
+                        $appointment,
+                        $provider,
+                        $service,
+                        $customer,
+                        $settings,
+                    );
+                }
+            } catch (Throwable $e) {
+                $this->log_exception($e, 'scheducal-sync', $appointment['id'] ?? null);
+            }
         } catch (Throwable $e) {
             $this->log_exception($e, 'appointment-saved (general exception)', $appointment['id'] ?? null);
         } finally {
@@ -331,6 +363,13 @@ class Notifications
                 } catch (Throwable $e) {
                     $this->log_exception($e, 'appointment-deleted to secretary', $appointment['id'] ?? null);
                 }
+            }
+
+            // Delete from ScheduCal if enabled
+            try {
+                $this->CI->scheducal_sync->delete_appointment($appointment, $cancellation_reason);
+            } catch (Throwable $e) {
+                $this->log_exception($e, 'scheducal-delete', $appointment['id'] ?? null);
             }
         } catch (Throwable $e) {
             log_message(
