@@ -32,3 +32,4 @@
 /metafile
 .DS_Store
 .env
+.claude/settings.local.json

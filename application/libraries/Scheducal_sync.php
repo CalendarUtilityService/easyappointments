@@ -52,6 +52,7 @@ class Scheducal_sync
             'api_url' => $this->CI->config->item('scheducal_api_url'),
             'base_url' => $this->CI->config->item('scheducal_base_url'),
         ];
+
     }
 
     /**
@@ -103,7 +104,7 @@ class Scheducal_sync
             $appointment_link = '';
             if (!empty($this->config['base_url']) && !empty($appointment['hash']))
             {
-                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/appointments/index/' . $appointment['hash'];
+                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/booking/reschedule/' . $appointment['hash'];
             }
 
             // Prepare data for ScheduCal API
@@ -131,7 +132,6 @@ class Scheducal_sync
             }
             elseif (is_string($response))
             {
-                // Fallback for old response format
                 return $response;
             }
 
@@ -165,7 +165,12 @@ class Scheducal_sync
         array $settings
     ): bool
     {
-        if (!$this->is_enabled() || empty($appointment['id_google_calendar']))
+        if (!$this->is_enabled())
+        {
+            return false;
+        }
+
+        if (empty($appointment['id_google_calendar']))
         {
             return false;
         }
@@ -212,7 +217,12 @@ class Scheducal_sync
      */
     public function delete_appointment(array $appointment, string $reason = ''): bool
     {
-        if (!$this->is_enabled() || empty($appointment['id_google_calendar']))
+        if (!$this->is_enabled())
+        {
+            return false;
+        }
+
+        if (empty($appointment['id_google_calendar']))
         {
             return false;
         }
