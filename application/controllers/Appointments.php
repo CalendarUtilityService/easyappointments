@@ -65,7 +65,7 @@ class Appointments extends EA_Controller
      */
     public function index(string $appointment_hash = ''): void
     {
-        redirect('booking/' . $appointment_hash);
+        redirect('booking/reschedule/' . $appointment_hash);
     }
 
     /**
