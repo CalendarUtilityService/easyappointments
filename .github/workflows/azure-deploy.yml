@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: app-schedcal-demo-cus-01
+  AZURE_WEBAPP_NAME: app-schedcal-demo-wus2-01
   PHP_VERSION: '8.3'
   NODE_VERSION: '18'
 
