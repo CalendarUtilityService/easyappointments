@@ -42,7 +42,7 @@ jobs:
       env:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
-        cat > config.php << EOF
+        cat > config.php << 'EOF'
         <?php
         class Config
         {
@@ -52,12 +52,14 @@ jobs:
             const DB_HOST = 'mysql-schedcal-demo-cus-01.mysql.database.azure.com';
             const DB_NAME = 'easyappointments';
             const DB_USERNAME = 'eaadmin';
-            const DB_PASSWORD = '${DB_PASSWORD}';
+            const DB_PASSWORD = 'PLACEHOLDER_PASSWORD';
             const GOOGLE_SYNC_FEATURE = false;
             const GOOGLE_CLIENT_ID = '';
             const GOOGLE_CLIENT_SECRET = '';
         }
         EOF
+        sed -i "s/PLACEHOLDER_PASSWORD/${DB_PASSWORD}/" config.php
+        sed -i 's/^        //' config.php
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
