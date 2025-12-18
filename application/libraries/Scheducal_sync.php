@@ -104,7 +104,7 @@ class Scheducal_sync
             $appointment_link = '';
             if (!empty($this->config['base_url']) && !empty($appointment['hash']))
             {
-                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/booking/reschedule/' . $appointment['hash'];
+                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/appointments/index/' . $appointment['hash'];
             }
 
             // Prepare data for ScheduCal API
