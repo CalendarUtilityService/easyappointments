@@ -29,4 +29,9 @@ $config['scheducal_api_secret'] = getenv('SCHEDUCAL_API_SECRET') ?: '70b7e64b-22
 $config['scheducal_api_url'] = getenv('SCHEDUCAL_API_URL') ?: 'https://api.scheducal.com/api/v1/appointments';
 
 // Base URL for appointment management links sent to ScheduCal
-$config['scheducal_base_url'] = getenv('SCHEDUCAL_BASE_URL') ?: 'http://localhost';
+// Falls back to Config::BASE_URL (from config.php) if environment variable not set
+$scheducal_base_url = getenv('SCHEDUCAL_BASE_URL') ?: ($_SERVER['SCHEDUCAL_BASE_URL'] ?? ($_ENV['SCHEDUCAL_BASE_URL'] ?? null));
+if (empty($scheducal_base_url) && class_exists('Config') && defined('Config::BASE_URL')) {
+    $scheducal_base_url = Config::BASE_URL;
+}
+$config['scheducal_base_url'] = $scheducal_base_url ?: 'http://localhost';
