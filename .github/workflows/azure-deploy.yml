@@ -48,7 +48,7 @@ jobs:
         {
             const BASE_URL = 'https://demo.scheducal.com';
             const LANGUAGE = 'english';
-            const DEBUG_MODE = true;
+            const DEBUG_MODE = false;
             const DB_HOST = 'mysql-schedcal-demo-cus-01.mysql.database.azure.com';
             const DB_NAME = 'easyappointments';
             const DB_USERNAME = 'eaadmin';
