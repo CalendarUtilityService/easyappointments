@@ -8,30 +8,29 @@ The ScheduCal integration synchronizes appointments between Easy!Appointments an
 
 ## Configuration
 
-### 1. Environment Variables (Recommended)
+### Admin UI (Recommended)
 
-Create a `.env` file in the root directory (you can copy `.env.example` as a template):
+Navigate to **Settings > Integrations > ScheduCal** to configure the integration:
+
+1. **ScheduCal Enabled** - Toggle to enable/disable the integration
+2. **API Key** - Your ScheduCal API key for authentication
+3. **API Secret** - Your ScheduCal API secret for authentication
+4. **API URL** - The ScheduCal API endpoint (default: `https://api.scheducal.com/api/v1/appointments`)
+5. **Base URL** - The base URL of your Easy!Appointments installation (used in appointment management links)
+
+### Environment Variables (Alternative)
+
+For deployments where database configuration isn't practical, you can use environment variables as a fallback:
 
 ```bash
-# Enable ScheduCal integration
 SCHEDUCAL_ENABLED=true
-
-# Your ScheduCal API credentials
 SCHEDUCAL_API_KEY=your-api-key-here
 SCHEDUCAL_API_SECRET=your-api-secret-here
-
-# ScheduCal API endpoint (default: https://api.scheducal.com/api/v1/appointments)
 SCHEDUCAL_API_URL=https://api.scheducal.com/api/v1/appointments
-
-# Base URL for your EasyAppointments installation
-SCHEDUCAL_BASE_URL=https://your-domain.com/easyappointments
+SCHEDUCAL_BASE_URL=https://your-domain.com
 ```
 
-**Important:** Never commit the `.env` file to version control! It's already included in `.gitignore`.
-
-### 2. Configuration File
-
-Alternatively, you can edit `application/config/scheducal.php` directly, but environment variables are more secure.
+**Configuration Priority:** Database settings take precedence over environment variables.
 
 ## Features
 
@@ -40,6 +39,10 @@ Alternatively, you can edit `application/config/scheducal.php` directly, but env
 - **Create**: When a new appointment is booked, it's automatically created in ScheduCal
 - **Update**: When an appointment is modified, the changes are synced to ScheduCal
 - **Delete**: When an appointment is cancelled, it's deleted from ScheduCal
+
+### Customer Email Suppression
+
+When ScheduCal is enabled, the built-in customer email notifications with ICS attachments are suppressed. ScheduCal sends its own calendar invites directly to customers, avoiding duplicate notifications. Provider, admin, and secretary notifications remain unchanged.
 
 ### Timezone Handling
 
@@ -50,21 +53,31 @@ The integration correctly handles timezones by:
 
 ### Appointment Management Links
 
-When ScheduCal is configured with a `SCHEDUCAL_BASE_URL`, appointment notifications include a link back to Easy!Appointments where customers can manage their appointments.
+When ScheduCal is configured with a base URL, appointment notifications include a link back to Easy!Appointments where customers can manage their appointments.
 
 ## Technical Details
 
-### Files Modified/Created
+### Files Created
 
-- `application/config/scheducal.php` - Configuration file
+- `application/config/scheducal.php` - Configuration with database-first fallback
 - `application/libraries/Scheducal_sync.php` - ScheduCal API client library
-- `application/libraries/Notifications.php` - Modified to include ScheduCal sync calls
-- `.env.example` - Template for environment configuration
-- `.gitignore` - Updated to exclude `.env`
+- `application/controllers/Scheducal_settings.php` - Admin settings controller
+- `application/views/pages/scheducal_settings.php` - Settings form view
+- `application/migrations/061_add_scheducal_settings.php` - Database migration
+- `assets/js/http/scheducal_settings_http_client.js` - AJAX client
+- `assets/js/pages/scheducal_settings.js` - Page JavaScript
+
+### Files Modified
+
+- `application/libraries/Notifications.php` - Integrates ScheduCal sync calls, suppresses duplicate customer emails
+- `application/views/pages/integrations.php` - Adds ScheduCal card
+- `application/language/english/translations_lang.php` - Adds language strings
 
 ### Database
 
 The integration uses the existing `id_google_calendar` field in the `appointments` table to store the ScheduCal appointment ID. This field was originally designed for Google Calendar integration and is reused here for ScheduCal.
+
+Settings are stored in the `settings` table with keys prefixed by `scheducal_`.
 
 ### API Methods
 
@@ -81,16 +94,7 @@ All ScheduCal API errors are logged to the application log file. If ScheduCal is
 
 ## Disabling the Integration
 
-To disable ScheduCal integration, set `SCHEDUCAL_ENABLED=false` in your `.env` file or update the configuration in `application/config/scheducal.php`.
-
-## Future Enhancements
-
-Potential improvements that could be added:
-
-- Bi-directional sync (import appointments from ScheduCal)
-- Retry mechanism for failed API calls
-- Bulk sync of existing appointments
-- Admin UI for configuring ScheduCal settings
+To disable ScheduCal integration, navigate to **Settings > Integrations > ScheduCal** and toggle off the "ScheduCal Enabled" setting.
 
 ## Support
 
