@@ -15,23 +15,30 @@
 |
 */
 
-$protocol =
-    (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
-    (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
-    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-        ? 'https://'
-        : 'http://';
+// Use BASE_URL env var if set, otherwise build dynamically from request
+$env_base_url = getenv('BASE_URL') ?: ($_SERVER['BASE_URL'] ?? ($_ENV['BASE_URL'] ?? ''));
 
-$domain = $_SERVER['HTTP_HOST'] ?? 'localhost';
+if (!empty($env_base_url)) {
+    $config['base_url'] = rtrim($env_base_url, '/');
+} else {
+    $protocol =
+        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+        (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
+        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            ? 'https://'
+            : 'http://';
 
-$request_uri = dirname($_SERVER['SCRIPT_NAME'] ?? 'index.php');
+    $domain = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-if ($request_uri === '.')
-{
-    $request_uri = '';
+    $request_uri = dirname($_SERVER['SCRIPT_NAME'] ?? 'index.php');
+
+    if ($request_uri === '.')
+    {
+        $request_uri = '';
+    }
+
+    $config['base_url'] = rtrim(! is_cli() ? $protocol . $domain . $request_uri : Config::BASE_URL, '/');
 }
-
-$config['base_url'] = rtrim(! is_cli() ? $protocol . $domain . $request_uri : Config::BASE_URL, '/');
 
 /*
 |--------------------------------------------------------------------------
