@@ -71,11 +71,11 @@ class Notifications
 
             $ics_stream = $this->CI->ics_file->get_stream($appointment, $service, $provider, $customer);
 
-            // Notify customer.
+            // Notify customer (skip if ScheduCal is enabled - it sends its own calendar invites).
             $send_customer =
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
-            if ($send_customer === true) {
+            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
@@ -283,11 +283,11 @@ class Notifications
                 }
             }
 
-            // Notify customer.
+            // Notify customer (skip if ScheduCal is enabled - it sends its own cancellation notices).
             $send_customer =
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
-            if ($send_customer === true) {
+            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
 
