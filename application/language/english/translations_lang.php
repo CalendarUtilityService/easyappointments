@@ -485,4 +485,16 @@ $lang['calendar_url'] = 'Calendar URL';
 $lang['please_select'] = 'Please Select';
 $lang['secret_header'] = 'Secret Header';
 $lang['search'] = 'Search';
+$lang['scheducal'] = 'ScheduCal';
+$lang['scheducal_info'] = 'ScheduCal integration enables automatic synchronization of appointment data with the ScheduCal platform for enhanced scheduling management and analytics.';
+$lang['scheducal_enabled'] = 'ScheduCal Enabled';
+$lang['scheducal_enabled_hint'] = 'Enable or disable the ScheduCal integration. When enabled, appointments will be synchronized with ScheduCal.';
+$lang['scheducal_api_key'] = 'API Key';
+$lang['scheducal_api_key_hint'] = 'Enter your ScheduCal API key for authentication.';
+$lang['scheducal_api_secret'] = 'API Secret';
+$lang['scheducal_api_secret_hint'] = 'Enter your ScheduCal API secret for authentication.';
+$lang['scheducal_api_url'] = 'API URL';
+$lang['scheducal_api_url_hint'] = 'The ScheduCal API endpoint URL for appointment synchronization.';
+$lang['scheducal_base_url'] = 'Base URL';
+$lang['scheducal_base_url_hint'] = 'The base URL of this Easy!Appointments installation used in appointment links sent to ScheduCal.';
 // End
