@@ -1,9 +1,9 @@
 diff --git a/application/views/pages/scheducal_settings.php b/application/views/pages/scheducal_settings.php
 new file mode 100644
-index 00000000..b5c5195e
+index 00000000..9b6b44a3
 --- /dev/null
 +++ b/application/views/pages/scheducal_settings.php
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,111 @@
 +<?php extend('layouts/backend_layout'); ?>
 +
 +<?php section('content'); ?>
@@ -94,20 +94,6 @@ index 00000000..b5c5195e
 +                                <div class="form-text text-muted">
 +                                    <small>
 +                                        <?= lang('scheducal_api_url_hint') ?>
-+                                    </small>
-+                                </div>
-+                            </div>
-+
-+                            <div class="mb-3">
-+                                <label class="form-label" for="scheducal-base-url">
-+                                    <?= lang('scheducal_base_url') ?>
-+                                </label>
-+                                <input id="scheducal-base-url" class="form-control"
-+                                       placeholder="https://your-domain.com"
-+                                       data-field="scheducal_base_url">
-+                                <div class="form-text text-muted">
-+                                    <small>
-+                                        <?= lang('scheducal_base_url_hint') ?>
 +                                    </small>
 +                                </div>
 +                            </div>

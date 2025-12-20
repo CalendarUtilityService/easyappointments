@@ -1,9 +1,9 @@
 diff --git a/application/migrations/061_add_scheducal_settings.php b/application/migrations/061_add_scheducal_settings.php
 new file mode 100644
-index 00000000..ecfab098
+index 00000000..40f07bee
 --- /dev/null
 +++ b/application/migrations/061_add_scheducal_settings.php
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,52 @@
 +<?php defined('BASEPATH') or exit('No direct script access allowed');
 +
 +/* ----------------------------------------------------------------------------
@@ -27,7 +27,6 @@ index 00000000..ecfab098
 +        'scheducal_api_key',
 +        'scheducal_api_secret',
 +        'scheducal_api_url',
-+        'scheducal_base_url',
 +    ];
 +
 +    /**

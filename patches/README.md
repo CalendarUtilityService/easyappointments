@@ -17,7 +17,7 @@ Apply patches one by one for more control:
 
 | File | Description |
 |------|-------------|
-| `01-scheducal-config.patch` | ScheduCal configuration with database/env fallback |
+| `01-scheducal-config.patch` | ScheduCal configuration |
 | `02-scheducal-sync-library.patch` | API client library for ScheduCal |
 | `03-notifications-integration.patch` | Integration with Notifications system + email suppression |
 | `04-scheducal-settings-controller.patch` | Admin settings controller |
