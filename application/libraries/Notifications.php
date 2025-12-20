@@ -41,7 +41,7 @@ class Notifications
         $this->CI->load->library('email_messages');
         $this->CI->load->library('ics_file');
         $this->CI->load->library('timezones');
-        $this->CI->load->library('scheducal_sync');
+        $this->CI->load->library('scheducal_client');
     }
 
     /**
@@ -75,7 +75,7 @@ class Notifications
             $send_customer =
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
-            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
+            if ($send_customer === true && !$this->CI->scheducal_client->is_enabled()) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
                 $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
@@ -199,11 +199,11 @@ class Notifications
                 }
             }
 
-            // Sync with ScheduCal if enabled
+            // Send calendar invitation via ScheduCal if enabled
             try {
                 if (empty($appointment['id_google_calendar'])) {
-                    // Create new appointment in ScheduCal
-                    $scheducal_id = $this->CI->scheducal_sync->create_appointment(
+                    // Send new calendar invitation via ScheduCal
+                    $scheducal_id = $this->CI->scheducal_client->create_appointment(
                         $appointment,
                         $provider,
                         $service,
@@ -217,8 +217,8 @@ class Notifications
                         $this->CI->appointments_model->save($appointment);
                     }
                 } else {
-                    // Update existing appointment in ScheduCal
-                    $this->CI->scheducal_sync->update_appointment(
+                    // Send updated calendar invitation via ScheduCal
+                    $this->CI->scheducal_client->update_appointment(
                         $appointment,
                         $provider,
                         $service,
@@ -227,7 +227,7 @@ class Notifications
                     );
                 }
             } catch (Throwable $e) {
-                $this->log_exception($e, 'scheducal-sync', $appointment['id'] ?? null);
+                $this->log_exception($e, 'scheducal-invitation', $appointment['id'] ?? null);
             }
         } catch (Throwable $e) {
             $this->log_exception($e, 'appointment-saved (general exception)', $appointment['id'] ?? null);
@@ -287,7 +287,7 @@ class Notifications
             $send_customer =
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
 
-            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
+            if ($send_customer === true && !$this->CI->scheducal_client->is_enabled()) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
 
@@ -365,11 +365,11 @@ class Notifications
                 }
             }
 
-            // Delete from ScheduCal if enabled
+            // Send cancellation notice via ScheduCal if enabled
             try {
-                $this->CI->scheducal_sync->delete_appointment($appointment, $cancellation_reason);
+                $this->CI->scheducal_client->delete_appointment($appointment, $cancellation_reason);
             } catch (Throwable $e) {
-                $this->log_exception($e, 'scheducal-delete', $appointment['id'] ?? null);
+                $this->log_exception($e, 'scheducal-cancellation', $appointment['id'] ?? null);
             }
         } catch (Throwable $e) {
             log_message(
