@@ -495,6 +495,4 @@ $lang['scheducal_api_secret'] = 'API Secret';
 $lang['scheducal_api_secret_hint'] = 'Enter your ScheduCal API secret for authentication.';
 $lang['scheducal_api_url'] = 'API URL';
 $lang['scheducal_api_url_hint'] = 'The ScheduCal API endpoint URL for appointment synchronization.';
-$lang['scheducal_base_url'] = 'Base URL';
-$lang['scheducal_base_url_hint'] = 'The base URL of this Easy!Appointments installation used in appointment links sent to ScheduCal.';
 // End

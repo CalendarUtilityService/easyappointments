@@ -50,7 +50,7 @@ class Scheducal_sync
             'api_key' => $this->CI->config->item('scheducal_api_key'),
             'api_secret' => $this->CI->config->item('scheducal_api_secret'),
             'api_url' => $this->CI->config->item('scheducal_api_url'),
-            'base_url' => $this->CI->config->item('scheducal_base_url'),
+            'base_url' => Config::BASE_URL,
         ];
     }
 

@@ -91,20 +91,6 @@
                                     </small>
                                 </div>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="scheducal-base-url">
-                                    <?= lang('scheducal_base_url') ?>
-                                </label>
-                                <input id="scheducal-base-url" class="form-control"
-                                       placeholder="https://your-domain.com"
-                                       data-field="scheducal_base_url">
-                                <div class="form-text text-muted">
-                                    <small>
-                                        <?= lang('scheducal_base_url_hint') ?>
-                                    </small>
-                                </div>
-                            </div>
                         </div>
                     </div>
 

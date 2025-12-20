@@ -21,7 +21,6 @@ class Migration_Add_scheducal_settings extends EA_Migration
         'scheducal_api_key',
         'scheducal_api_secret',
         'scheducal_api_url',
-        'scheducal_base_url',
     ];
 
     /**
