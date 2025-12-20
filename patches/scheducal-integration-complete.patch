@@ -1,6 +1,6 @@
 diff --git a/SCHEDUCAL_INTEGRATION.md b/SCHEDUCAL_INTEGRATION.md
 new file mode 100644
-index 00000000..dfb69737
+index 00000000..c74034d5
 --- /dev/null
 +++ b/SCHEDUCAL_INTEGRATION.md
 @@ -0,0 +1,86 @@
@@ -10,7 +10,7 @@ index 00000000..dfb69737
 +
 +## Overview
 +
-+The ScheduCal integration synchronizes appointments between Easy!Appointments and the ScheduCal calendar service. When appointments are created, updated, or deleted in Easy!Appointments, they are automatically synced to ScheduCal.
++The ScheduCal integration sends calendar invitations directly to customers instead of emails with ICS attachments. When appointments are created, updated, or cancelled in Easy!Appointments, ScheduCal sends the appropriate calendar invitation to the customer's email address.
 +
 +## Configuration
 +
@@ -25,11 +25,11 @@ index 00000000..dfb69737
 +
 +## Features
 +
-+### Automatic Synchronization
++### Calendar Invitations
 +
-+- **Create**: When a new appointment is booked, it's automatically created in ScheduCal
-+- **Update**: When an appointment is modified, the changes are synced to ScheduCal
-+- **Delete**: When an appointment is cancelled, it's deleted from ScheduCal
++- **New Appointments**: When a new appointment is booked, ScheduCal sends a calendar invitation to the customer
++- **Updates**: When an appointment is modified, ScheduCal sends an updated invitation
++- **Cancellations**: When an appointment is cancelled, ScheduCal sends a cancellation notice
 +
 +### Customer Email Suppression
 +
@@ -40,18 +40,18 @@ index 00000000..dfb69737
 +The integration correctly handles timezones by:
 +- Sending appointment times in the provider's local timezone (not UTC)
 +- Including the `appointmentTimeZone` field to tell ScheduCal which timezone the times are in
-+- This ensures appointments appear at the correct time in ScheduCal calendars
++- This ensures appointments appear at the correct time in customer calendars
 +
 +### Appointment Management Links
 +
-+Appointment notifications include a link back to Easy!Appointments where customers can manage their appointments.
++Calendar invitations include a link back to Easy!Appointments where customers can manage their appointments.
 +
 +## Technical Details
 +
 +### Files Created
 +
 +- `application/config/scheducal.php` - Configuration
-+- `application/libraries/Scheducal_sync.php` - ScheduCal API client library
++- `application/libraries/Scheducal_client.php` - ScheduCal API client library
 +- `application/controllers/Scheducal_settings.php` - Admin settings controller
 +- `application/views/pages/scheducal_settings.php` - Settings form view
 +- `application/migrations/061_add_scheducal_settings.php` - Database migration
@@ -60,7 +60,7 @@ index 00000000..dfb69737
 +
 +### Files Modified
 +
-+- `application/libraries/Notifications.php` - Integrates ScheduCal sync calls, suppresses duplicate customer emails
++- `application/libraries/Notifications.php` - Integrates ScheduCal API calls, suppresses duplicate customer emails
 +- `application/views/pages/integrations.php` - Adds ScheduCal card
 +- `application/language/english/translations_lang.php` - Adds language strings
 +
@@ -72,16 +72,16 @@ index 00000000..dfb69737
 +
 +### API Methods
 +
-+The `Scheducal_sync` library implements:
++The `Scheducal_client` library implements:
 +
 +- `is_enabled()`: Check if ScheduCal integration is enabled
-+- `create_appointment()`: Create a new appointment in ScheduCal
-+- `update_appointment()`: Update an existing appointment in ScheduCal
-+- `delete_appointment()`: Delete an appointment from ScheduCal
++- `create_appointment()`: Send a calendar invitation for a new appointment
++- `update_appointment()`: Send an updated calendar invitation
++- `delete_appointment()`: Send a cancellation notice
 +
 +## Error Handling
 +
-+All ScheduCal API errors are logged to the application log file. If ScheduCal is unavailable or returns an error, the appointment will still be saved in Easy!Appointments - the sync failure won't prevent the appointment from being created locally.
++All ScheduCal API errors are logged to the application log file. If ScheduCal is unavailable or returns an error, the appointment will still be saved in Easy!Appointments - the failure won't prevent the appointment from being created locally.
 +
 +## Disabling the Integration
 +
@@ -234,7 +234,7 @@ index 00000000..d7d63f7f
 +    }
 +}
 diff --git a/application/language/english/translations_lang.php b/application/language/english/translations_lang.php
-index d904a834..58021621 100755
+index d904a834..16e4c958 100755
 --- a/application/language/english/translations_lang.php
 +++ b/application/language/english/translations_lang.php
 @@ -485,4 +485,14 @@ $lang['calendar_url'] = 'Calendar URL';
@@ -242,25 +242,25 @@ index d904a834..58021621 100755
  $lang['secret_header'] = 'Secret Header';
  $lang['search'] = 'Search';
 +$lang['scheducal'] = 'ScheduCal';
-+$lang['scheducal_info'] = 'ScheduCal integration enables automatic synchronization of appointment data with the ScheduCal platform for enhanced scheduling management and analytics.';
++$lang['scheducal_info'] = 'ScheduCal sends calendar invitations directly to customers instead of emails with ICS attachments, providing a better booking experience.';
 +$lang['scheducal_enabled'] = 'ScheduCal Enabled';
-+$lang['scheducal_enabled_hint'] = 'Enable or disable the ScheduCal integration. When enabled, appointments will be synchronized with ScheduCal.';
++$lang['scheducal_enabled_hint'] = 'Enable or disable the ScheduCal integration. When enabled, customers receive calendar invitations instead of emails with ICS attachments.';
 +$lang['scheducal_api_key'] = 'API Key';
 +$lang['scheducal_api_key_hint'] = 'Enter your ScheduCal API key for authentication.';
 +$lang['scheducal_api_secret'] = 'API Secret';
 +$lang['scheducal_api_secret_hint'] = 'Enter your ScheduCal API secret for authentication.';
 +$lang['scheducal_api_url'] = 'API URL';
-+$lang['scheducal_api_url_hint'] = 'The ScheduCal API endpoint URL for appointment synchronization.';
++$lang['scheducal_api_url_hint'] = 'The ScheduCal API endpoint URL for sending calendar invitations.';
  // End
 diff --git a/application/libraries/Notifications.php b/application/libraries/Notifications.php
-index 9201df52..e91689f2 100644
+index 9201df52..56054c7f 100644
 --- a/application/libraries/Notifications.php
 +++ b/application/libraries/Notifications.php
 @@ -41,6 +41,7 @@ class Notifications
          $this->CI->load->library('email_messages');
          $this->CI->load->library('ics_file');
          $this->CI->load->library('timezones');
-+        $this->CI->load->library('scheducal_sync');
++        $this->CI->load->library('scheducal_client');
      }
  
      /**
@@ -274,7 +274,7 @@ index 9201df52..e91689f2 100644
                  !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
  
 -            if ($send_customer === true) {
-+            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
++            if ($send_customer === true && !$this->CI->scheducal_client->is_enabled()) {
                  config(['language' => $customer['language']]);
                  $this->CI->lang->load('translations');
                  $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
@@ -283,11 +283,11 @@ index 9201df52..e91689f2 100644
                  }
              }
 +
-+            // Sync with ScheduCal if enabled
++            // Send calendar invitation via ScheduCal if enabled
 +            try {
 +                if (empty($appointment['id_google_calendar'])) {
-+                    // Create new appointment in ScheduCal
-+                    $scheducal_id = $this->CI->scheducal_sync->create_appointment(
++                    // Send new calendar invitation via ScheduCal
++                    $scheducal_id = $this->CI->scheducal_client->create_appointment(
 +                        $appointment,
 +                        $provider,
 +                        $service,
@@ -301,8 +301,8 @@ index 9201df52..e91689f2 100644
 +                        $this->CI->appointments_model->save($appointment);
 +                    }
 +                } else {
-+                    // Update existing appointment in ScheduCal
-+                    $this->CI->scheducal_sync->update_appointment(
++                    // Send updated calendar invitation via ScheduCal
++                    $this->CI->scheducal_client->update_appointment(
 +                        $appointment,
 +                        $provider,
 +                        $service,
@@ -311,7 +311,7 @@ index 9201df52..e91689f2 100644
 +                    );
 +                }
 +            } catch (Throwable $e) {
-+                $this->log_exception($e, 'scheducal-sync', $appointment['id'] ?? null);
++                $this->log_exception($e, 'scheducal-invitation', $appointment['id'] ?? null);
 +            }
          } catch (Throwable $e) {
              $this->log_exception($e, 'appointment-saved (general exception)', $appointment['id'] ?? null);
@@ -326,7 +326,7 @@ index 9201df52..e91689f2 100644
                  !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
  
 -            if ($send_customer === true) {
-+            if ($send_customer === true && !$this->CI->scheducal_sync->is_enabled()) {
++            if ($send_customer === true && !$this->CI->scheducal_client->is_enabled()) {
                  config(['language' => $customer['language']]);
                  $this->CI->lang->load('translations');
  
@@ -335,20 +335,20 @@ index 9201df52..e91689f2 100644
                  }
              }
 +
-+            // Delete from ScheduCal if enabled
++            // Send cancellation notice via ScheduCal if enabled
 +            try {
-+                $this->CI->scheducal_sync->delete_appointment($appointment, $cancellation_reason);
++                $this->CI->scheducal_client->delete_appointment($appointment, $cancellation_reason);
 +            } catch (Throwable $e) {
-+                $this->log_exception($e, 'scheducal-delete', $appointment['id'] ?? null);
++                $this->log_exception($e, 'scheducal-cancellation', $appointment['id'] ?? null);
 +            }
          } catch (Throwable $e) {
              log_message(
                  'error',
-diff --git a/application/libraries/Scheducal_sync.php b/application/libraries/Scheducal_sync.php
+diff --git a/application/libraries/Scheducal_client.php b/application/libraries/Scheducal_client.php
 new file mode 100644
-index 00000000..58db1c5f
+index 00000000..33219d31
 --- /dev/null
-+++ b/application/libraries/Scheducal_sync.php
++++ b/application/libraries/Scheducal_client.php
 @@ -0,0 +1,300 @@
 +<?php defined('BASEPATH') or exit('No direct script access allowed');
 +
@@ -364,13 +364,13 @@ index 00000000..58db1c5f
 + * ---------------------------------------------------------------------------- */
 +
 +/**
-+ * ScheduCal sync library.
++ * ScheduCal client library.
 + *
-+ * Handles ScheduCal API integration for appointment synchronization.
++ * Handles ScheduCal API integration for sending calendar invitations.
 + *
 + * @package Libraries
 + */
-+class Scheducal_sync
++class Scheducal_client
 +{
 +    /**
 +     * @var EA_Controller|CI_Controller
@@ -383,7 +383,7 @@ index 00000000..58db1c5f
 +    protected array $config;
 +
 +    /**
-+     * Scheducal_sync constructor.
++     * Scheducal_client constructor.
 +     */
 +    public function __construct()
 +    {
@@ -407,7 +407,7 @@ index 00000000..58db1c5f
 +    }
 +
 +    /**
-+     * Check if ScheduCal sync is enabled and properly configured.
++     * Check if ScheduCal integration is enabled and properly configured.
 +     *
 +     * @return bool
 +     */
@@ -419,7 +419,7 @@ index 00000000..58db1c5f
 +    }
 +
 +    /**
-+     * Create a new appointment in ScheduCal.
++     * Send a calendar invitation for a new appointment via ScheduCal.
 +     *
 +     * @param array $appointment Appointment data.
 +     * @param array $provider Provider data.
@@ -497,7 +497,7 @@ index 00000000..58db1c5f
 +    }
 +
 +    /**
-+     * Update an existing appointment in ScheduCal.
++     * Send an updated calendar invitation via ScheduCal.
 +     *
 +     * @param array $appointment Appointment data (must include id_google_calendar).
 +     * @param array $provider Provider data.
@@ -553,7 +553,7 @@ index 00000000..58db1c5f
 +    }
 +
 +    /**
-+     * Delete an appointment from ScheduCal.
++     * Send a cancellation notice via ScheduCal.
 +     *
 +     * @param array $appointment Appointment data (must include id_google_calendar).
 +     * @param string $reason Reason for cancellation.
