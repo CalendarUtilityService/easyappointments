@@ -4,7 +4,7 @@ This document describes the ScheduCal API integration for Easy!Appointments.
 
 ## Overview
 
-The ScheduCal integration synchronizes appointments between Easy!Appointments and the ScheduCal calendar service. When appointments are created, updated, or deleted in Easy!Appointments, they are automatically synced to ScheduCal.
+The ScheduCal integration sends calendar invitations directly to customers instead of emails with ICS attachments. When appointments are created, updated, or cancelled in Easy!Appointments, ScheduCal sends the appropriate calendar invitation to the customer's email address.
 
 ## Configuration
 
@@ -19,11 +19,11 @@ The Base URL for appointment management links is automatically detected from you
 
 ## Features
 
-### Automatic Synchronization
+### Calendar Invitations
 
-- **Create**: When a new appointment is booked, it's automatically created in ScheduCal
-- **Update**: When an appointment is modified, the changes are synced to ScheduCal
-- **Delete**: When an appointment is cancelled, it's deleted from ScheduCal
+- **New Appointments**: When a new appointment is booked, ScheduCal sends a calendar invitation to the customer
+- **Updates**: When an appointment is modified, ScheduCal sends an updated invitation
+- **Cancellations**: When an appointment is cancelled, ScheduCal sends a cancellation notice
 
 ### Customer Email Suppression
 
@@ -34,18 +34,18 @@ When ScheduCal is enabled, the built-in customer email notifications with ICS at
 The integration correctly handles timezones by:
 - Sending appointment times in the provider's local timezone (not UTC)
 - Including the `appointmentTimeZone` field to tell ScheduCal which timezone the times are in
-- This ensures appointments appear at the correct time in ScheduCal calendars
+- This ensures appointments appear at the correct time in customer calendars
 
 ### Appointment Management Links
 
-Appointment notifications include a link back to Easy!Appointments where customers can manage their appointments.
+Calendar invitations include a link back to Easy!Appointments where customers can manage their appointments.
 
 ## Technical Details
 
 ### Files Created
 
 - `application/config/scheducal.php` - Configuration
-- `application/libraries/Scheducal_sync.php` - ScheduCal API client library
+- `application/libraries/Scheducal_client.php` - ScheduCal API client library
 - `application/controllers/Scheducal_settings.php` - Admin settings controller
 - `application/views/pages/scheducal_settings.php` - Settings form view
 - `application/migrations/061_add_scheducal_settings.php` - Database migration
@@ -54,7 +54,7 @@ Appointment notifications include a link back to Easy!Appointments where custome
 
 ### Files Modified
 
-- `application/libraries/Notifications.php` - Integrates ScheduCal sync calls, suppresses duplicate customer emails
+- `application/libraries/Notifications.php` - Integrates ScheduCal API calls, suppresses duplicate customer emails
 - `application/views/pages/integrations.php` - Adds ScheduCal card
 - `application/language/english/translations_lang.php` - Adds language strings
 
@@ -66,16 +66,16 @@ Settings are stored in the `settings` table with keys prefixed by `scheducal_`.
 
 ### API Methods
 
-The `Scheducal_sync` library implements:
+The `Scheducal_client` library implements:
 
 - `is_enabled()`: Check if ScheduCal integration is enabled
-- `create_appointment()`: Create a new appointment in ScheduCal
-- `update_appointment()`: Update an existing appointment in ScheduCal
-- `delete_appointment()`: Delete an appointment from ScheduCal
+- `create_appointment()`: Send a calendar invitation for a new appointment
+- `update_appointment()`: Send an updated calendar invitation
+- `delete_appointment()`: Send a cancellation notice
 
 ## Error Handling
 
-All ScheduCal API errors are logged to the application log file. If ScheduCal is unavailable or returns an error, the appointment will still be saved in Easy!Appointments - the sync failure won't prevent the appointment from being created locally.
+All ScheduCal API errors are logged to the application log file. If ScheduCal is unavailable or returns an error, the appointment will still be saved in Easy!Appointments - the failure won't prevent the appointment from being created locally.
 
 ## Disabling the Integration
 

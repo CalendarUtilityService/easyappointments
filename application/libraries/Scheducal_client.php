@@ -12,13 +12,13 @@
  * ---------------------------------------------------------------------------- */
 
 /**
- * ScheduCal sync library.
+ * ScheduCal client library.
  *
- * Handles ScheduCal API integration for appointment synchronization.
+ * Handles ScheduCal API integration for sending calendar invitations.
  *
  * @package Libraries
  */
-class Scheducal_sync
+class Scheducal_client
 {
     /**
      * @var EA_Controller|CI_Controller
@@ -31,7 +31,7 @@ class Scheducal_sync
     protected array $config;
 
     /**
-     * Scheducal_sync constructor.
+     * Scheducal_client constructor.
      */
     public function __construct()
     {
@@ -56,7 +56,7 @@ class Scheducal_sync
     }
 
     /**
-     * Check if ScheduCal sync is enabled and properly configured.
+     * Check if ScheduCal integration is enabled and properly configured.
      *
      * @return bool
      */
@@ -68,7 +68,7 @@ class Scheducal_sync
     }
 
     /**
-     * Create a new appointment in ScheduCal.
+     * Send a calendar invitation for a new appointment via ScheduCal.
      *
      * @param array $appointment Appointment data.
      * @param array $provider Provider data.
@@ -145,7 +145,7 @@ class Scheducal_sync
     }
 
     /**
-     * Update an existing appointment in ScheduCal.
+     * Send an updated calendar invitation via ScheduCal.
      *
      * @param array $appointment Appointment data (must include id_google_calendar).
      * @param array $provider Provider data.
@@ -206,7 +206,7 @@ class Scheducal_sync
     }
 
     /**
-     * Delete an appointment from ScheduCal.
+     * Send a cancellation notice via ScheduCal.
      *
      * @param array $appointment Appointment data (must include id_google_calendar).
      * @param string $reason Reason for cancellation.
