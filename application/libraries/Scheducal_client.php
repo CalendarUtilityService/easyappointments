@@ -267,6 +267,8 @@ class Scheducal_client
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);  // 5 seconds to establish connection
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);         // 10 seconds total for the request
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
         ]);
