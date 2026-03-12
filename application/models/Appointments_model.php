@@ -200,6 +200,23 @@ class Appointments_model extends EA_Model
     }
 
     /**
+     * Generate a UUID4 string for use as an ICS UID.
+     *
+     * UIDs must be globally unique and stable for the lifetime of the appointment
+     * (RFC 5545 §3.8.4.7). We use UUID4 (random) to satisfy the uniqueness
+     * requirement without relying on any external service.
+     *
+     * @return string UUID4, e.g. "550e8400-e29b-41d4-a716-446655440000"
+     */
+    private function generate_uuid4(): string
+    {
+        $bytes = random_bytes(16);
+        $bytes[6] = chr((ord($bytes[6]) & 0x0F) | 0x40); // version 4
+        $bytes[8] = chr((ord($bytes[8]) & 0x3F) | 0x80); // variant RFC 4122
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+    }
+
+    /**
      * Insert a new appointment into the database.
      *
      * @param array $appointment Associative array with the appointment data.
@@ -214,6 +231,13 @@ class Appointments_model extends EA_Model
         $appointment['create_datetime'] = date('Y-m-d H:i:s');
         $appointment['update_datetime'] = date('Y-m-d H:i:s');
         $appointment['hash'] = random_string('alnum', 12);
+
+        // Assign a stable UUID4 as the ICS UID (RFC 5545 §3.8.4.7).
+        // This UID persists across all future updates and must never be regenerated.
+        $appointment['ics_uid'] = $this->generate_uuid4();
+
+        // SEQUENCE starts at 0 for new appointments (RFC 5545 §3.8.7.4).
+        $appointment['ics_sequence'] = 0;
 
         if (!$this->db->insert('appointments', $appointment)) {
             throw new RuntimeException('Could not insert appointment.');
@@ -234,6 +258,15 @@ class Appointments_model extends EA_Model
     protected function update(array $appointment): int
     {
         $appointment['update_datetime'] = date('Y-m-d H:i:s');
+
+        // Never let callers overwrite ics_uid or ics_sequence directly.
+        // ics_uid is immutable; ics_sequence is managed exclusively here.
+        unset($appointment['ics_uid'], $appointment['ics_sequence']);
+
+        // Increment SEQUENCE on every calendar-object change per RFC 5545 §3.8.7.4.
+        // Using a raw SQL expression ensures the increment is atomic even under
+        // concurrent requests, and avoids a read-modify-write race.
+        $this->db->set('ics_sequence', 'ics_sequence + 1', false);
 
         if (!$this->db->update('appointments', $appointment, ['id' => $appointment['id']])) {
             throw new RuntimeException('Could not update appointment record.');
