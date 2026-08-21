@@ -116,7 +116,7 @@ class Email_messages
 
         $php_mailer->addStringAttachment($ics_stream, 'invitation.ics', PHPMailer::ENCODING_BASE64, 'text/calendar');
 
-        $php_mailer->send();
+        $this->deliver($php_mailer);
     }
 
     /**
@@ -179,7 +179,7 @@ class Email_messages
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
-        $php_mailer->send();
+        $this->deliver($php_mailer);
     }
 
     /**
@@ -207,7 +207,7 @@ class Email_messages
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
-        $php_mailer->send();
+        $this->deliver($php_mailer);
     }
 
     /**
@@ -245,7 +245,17 @@ class Email_messages
         $from_address = config('from_address') ?: setting('company_email');
         $reply_to_address = config('reply_to') ?: setting('company_email');
 
-        $php_mailer->setFrom($from_address, $from_name);
+        $graph_mailer = $this->graph_mailer();
+
+        if ($graph_mailer->is_configured()) {
+            // Graph sends as the mailbox in the URL; a mismatched MIME From
+            // header is rejected. Keep the configured address reachable as
+            // Reply-To so customer replies still land in the right inbox.
+            $php_mailer->setFrom($graph_mailer->sender(), $from_name);
+        } else {
+            $php_mailer->setFrom($from_address, $from_name);
+        }
+
         $php_mailer->addReplyTo($reply_to_address);
 
         if ($recipient_email) {
@@ -270,5 +280,44 @@ class Email_messages
         }
 
         return $php_mailer;
+    }
+
+    /**
+     * Lazily loads the Graph mailer library.
+     */
+    private function graph_mailer(): Graph_mailer
+    {
+        if (!isset($this->CI->graph_mailer)) {
+            $this->CI->load->library('graph_mailer');
+        }
+
+        return $this->CI->graph_mailer;
+    }
+
+    /**
+     * Delivers a composed message.
+     *
+     * Prefers Microsoft Graph, because the tenant blocks SMTP basic auth via
+     * Conditional Access. PHPMailer still builds the MIME, so HTML/plain parts
+     * and the ICS attachment are unchanged - only the transport differs.
+     * Falls back to PHPMailer's SMTP when Graph is not configured.
+     *
+     * @throws Exception
+     */
+    private function deliver(PHPMailer $php_mailer): void
+    {
+        $graph_mailer = $this->graph_mailer();
+
+        if (!$graph_mailer->is_configured()) {
+            $php_mailer->send();
+            return;
+        }
+
+        // preSend() builds the MIME without opening an SMTP connection.
+        $php_mailer->preSend();
+
+        if (!$graph_mailer->send_mime($php_mailer->getSentMIMEMessage())) {
+            throw new Exception('Graph mail delivery failed; see the application log.');
+        }
     }
 }
