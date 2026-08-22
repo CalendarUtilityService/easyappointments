@@ -84,3 +84,18 @@ To disable ScheduCal integration, navigate to **Settings > Integrations > Schedu
 ## Support
 
 For issues related to the ScheduCal integration, check the application logs for detailed error messages. The integration logs all API requests and responses for debugging purposes.
+
+## Upstream version
+
+Tracking EasyAppointments **1.6.0** as of 2026-08-22. See
+[MAINTAINING_THE_FORK.md](MAINTAINING_THE_FORK.md) for how to merge future
+upstream releases, which customizations must be defended during a merge, and how
+to run migrations on App Service.
+
+Two things worth knowing before touching ICS code:
+
+- `Ics_calendar.php` and `Ics_provider.php` are deleted upstream but retained
+  here. `get_cancel_stream()` needs `setMethod('CANCEL')`, which the vendored
+  `Jsvrcek\ICS\Model\Calendar` does not provide.
+- ScheduCal migrations start at **070**. They were 061/062 until 1.6.0 claimed
+  those numbers.
