@@ -9,22 +9,21 @@ jobs:
     steps:
       - name: Git clone
         uses: actions/checkout@v2
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: gd
+
+      # There is no PHP runtime on the machine this is usually edited from, so
+      # CI is the first thing that can catch a syntax error.
       - name: Lint PHP sources
         run: |
           find application -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
-      - name: Install dependencies
-        uses: php-actions/composer@v6
-        with:
-          php_version: 8.3
-          php_extensions: gd
-          version: 2
-      - name: PHPUnit Tests
-        uses: php-actions/phpunit@v4
-        env:
-          TEST_NAME: Test
-        with:
-          configuration: phpunit.xml
+
+      - name: Install Composer dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --configuration phpunit.xml

@@ -124,6 +124,7 @@ $languages = [
     'no' => 'norwegian',
     'pl' => 'polish',
     'pt' => 'portuguese',
+    'pt-br' => 'portuguese-br',
     'ro' => 'romanian',
     'rs' => 'serbian',
     'ru' => 'russian',
@@ -133,6 +134,7 @@ $languages = [
     'th' => 'thai',
     'tr' => 'turkish',
     'zh' => 'chinese',
+    'zh-tw' => 'traditional-chinese',
     'uk' => 'ukrainian',
 ];
 
@@ -140,8 +142,14 @@ $config['language_codes'] = $languages;
 
 $language_code = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : 'en';
 
+// Validate language parameter to prevent injection - only accept known language values
+$requested_language = $_GET['language'] ?? null;
+if ($requested_language !== null && !in_array($requested_language, $languages, true)) {
+    $requested_language = null; // Invalid language, ignore it
+}
+
 $config['language'] =
-    $_GET['language'] ??
+    $requested_language ??
     (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'], $languages[$language_code])
         ? $languages[$language_code]
         : Config::LANGUAGE);
@@ -222,7 +230,7 @@ $config['charset'] = 'UTF-8';
 | setting this variable to TRUE (boolean).  See the user guide for details.
 |
 */
-$config['enable_hooks'] = TRUE;
+$config['enable_hooks'] = true;
 
 /*
 |--------------------------------------------------------------------------
@@ -282,8 +290,8 @@ $config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
 | use segment based URLs.
 |
 */
-$config['allow_get_array'] = TRUE;
-$config['enable_query_strings'] = FALSE;
+$config['allow_get_array'] = true;
+$config['enable_query_strings'] = false;
 $config['controller_trigger'] = 'c';
 $config['function_trigger'] = 'm';
 $config['directory_trigger'] = 'd'; // experimental not currently in use
@@ -351,8 +359,14 @@ $config['cache_path'] = __DIR__ . '/../../storage/cache/';
 | If you use the Encryption class or the Session class you
 | MUST set an encryption key.  See the user guide for info.
 |
+| IMPORTANT: For production, set a strong random key in your config.php
+| using: define('ENCRYPTION_KEY', 'your-random-32-character-string');
+|
 */
-$config['encryption_key'] = base64_encode(APPPATH);
+$config['encryption_key'] =
+    defined('ENCRYPTION_KEY') && !empty(ENCRYPTION_KEY)
+        ? ENCRYPTION_KEY
+        : hash('sha256', APPPATH . (defined('DB_PASSWORD') ? DB_PASSWORD : '') . php_uname(), true);
 
 /*
 |--------------------------------------------------------------------------
@@ -374,11 +388,11 @@ $config['encryption_key'] = base64_encode(APPPATH);
 */
 $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'ea_session';
-$config['sess_expiration'] = 7200;
+$config['sess_expiration'] = 604800; // 1 week
 $config['sess_save_path'] = __DIR__ . '/../../storage/sessions';
-$config['sess_match_ip'] = FALSE;
+$config['sess_match_ip'] = true; // Enable IP matching for better session security
 $config['sess_time_to_update'] = 300;
-$config['sess_regenerate_destroy'] = TRUE;
+$config['sess_regenerate_destroy'] = true;
 
 /*
 |--------------------------------------------------------------------------
@@ -394,7 +408,9 @@ $config['sess_regenerate_destroy'] = TRUE;
 $config['cookie_prefix'] = '';
 $config['cookie_domain'] = '';
 $config['cookie_path'] = '/';
-$config['cookie_secure'] = strpos($config['base_url'], 'https') !== FALSE;
+$config['cookie_secure'] = strpos($config['base_url'], 'https') !== false;
+$config['cookie_httponly'] = true; // Prevent JavaScript access to cookies
+$config['cookie_samesite'] = 'Lax'; // CSRF protection for cookies
 
 /*
 |--------------------------------------------------------------------------
@@ -408,7 +424,7 @@ $config['cookie_secure'] = strpos($config['base_url'], 'https') !== FALSE;
 | 'csrf_cookie_name' = The cookie name
 | 'csrf_expire' = The number in seconds the token should expire.
 */
-$config['csrf_protection'] = TRUE;
+$config['csrf_protection'] = true;
 $config['csrf_token_name'] = 'csrf_token';
 $config['csrf_cookie_name'] = 'csrf_cookie';
 $config['csrf_expire'] = 7200;
@@ -431,7 +447,7 @@ $config['csrf_exclude_uris'] = ['api/v1/.*', 'booking/.*', 'booking_cancellation
 | by the output class.  Do not 'echo' any values with compression enabled.
 |
 */
-$config['compress_output'] = FALSE;
+$config['compress_output'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -456,7 +472,7 @@ $config['time_reference'] = 'local';
 | in your view files.  Options are TRUE or FALSE (boolean)
 |
 */
-$config['rewrite_short_tags'] = FALSE;
+$config['rewrite_short_tags'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -480,7 +496,7 @@ $config['proxy_ips'] = '';
 | will control the number of requests a client can send to the app.
 |
 */
-$config['rate_limiting'] = TRUE;
+$config['rate_limiting'] = true;
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */
