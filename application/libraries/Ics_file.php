@@ -73,12 +73,21 @@ class Ics_file
         // Set up the event.
         $event = new CalendarEvent();
 
+        // Use the stored stable UID (RFC 5545 §3.8.4.7).
+        // ics_uid is a UUID4 generated once at appointment creation and never changes.
+        // Falling back to id_caldav_calendar or a hash-based UID handles rows that
+        // pre-date the ics_uid column (before migration 062).
+        $uid = $appointment['ics_uid']
+            ?? ($appointment['id_caldav_calendar'] ?: $this->generate_uid($appointment['id']));
+
         $event
             ->setStart($appointment_start)
             ->setEnd($appointment_end)
             ->setStatus('CONFIRMED')
             ->setSummary($service['name'])
-            ->setUid($appointment['id_caldav_calendar'] ?: $this->generate_uid($appointment['id']));
+            ->setUid($uid)
+            // SEQUENCE increments on every update so clients detect changes (RFC 5545 §3.8.7.4).
+            ->setSequence((int) ($appointment['ics_sequence'] ?? 0));
 
         if (!empty($service['location'])) {
             $location = new Location();
@@ -183,6 +192,102 @@ class Ics_file
         return $calendarExport->getStream();
     }
 
+    /**
+     * Get the ICS cancellation file contents for the provided appointment.
+     *
+     * A cancellation ICS must (RFC 5545 §3.6.1):
+     *  - Use METHOD:CANCEL on the VCALENDAR component.
+     *  - Use STATUS:CANCELLED on the VEVENT component.
+     *  - Carry the same UID as the original appointment.
+     *  - Carry a SEQUENCE value greater than the last sent SEQUENCE so that
+     *    receiving clients know this supersedes prior versions.
+     *
+     * @param array $appointment Appointment data (must include ics_uid and ics_sequence).
+     * @param array $service     Service data.
+     * @param array $provider    Provider data.
+     * @param array $customer    Customer data.
+     *
+     * @return string Returns the contents of the cancellation ICS file.
+     *
+     * @throws CalendarEventException
+     * @throws Exception
+     */
+    public function get_cancel_stream(array $appointment, array $service, array $provider, array $customer): string
+    {
+        $appointment_timezone = new DateTimeZone($provider['timezone']);
+
+        $appointment_start = new DateTime($appointment['start_datetime'], $appointment_timezone);
+
+        $appointment_end = new DateTime($appointment['end_datetime'], $appointment_timezone);
+
+        // Reuse the stable UID — this is what ties the cancellation to the original invite.
+        $uid = $appointment['ics_uid']
+            ?? ($appointment['id_caldav_calendar'] ?: $this->generate_uid($appointment['id']));
+
+        // SEQUENCE must be higher than the last update SEQUENCE so clients apply the cancel.
+        $cancel_sequence = (int) ($appointment['ics_sequence'] ?? 0) + 1;
+
+        $event = new CalendarEvent();
+
+        $event
+            ->setStart($appointment_start)
+            ->setEnd($appointment_end)
+            ->setStatus('CANCELLED')
+            ->setSummary($service['name'])
+            ->setUid($uid)
+            ->setSequence($cancel_sequence);
+
+        $event->setDescription('');
+
+        // Add the attendees so receiving clients know whose calendars to update.
+        $attendee = new Attendee(new Formatter());
+
+        if (isset($customer['email']) && !empty($customer['email'])) {
+            $attendee->setValue($customer['email']);
+        }
+
+        $attendee->setName($customer['first_name'] . ' ' . $customer['last_name']);
+        $attendee
+            ->setCalendarUserType('INDIVIDUAL')
+            ->setRole('REQ-PARTICIPANT')
+            ->setParticipationStatus('DECLINED')
+            ->setRsvp('FALSE');
+        $event->addAttendee($attendee);
+
+        $attendee = new Attendee(new Formatter());
+
+        if (isset($provider['email']) && !empty($provider['email'])) {
+            $attendee->setValue($provider['email']);
+        }
+
+        $attendee->setName($provider['first_name'] . ' ' . $provider['last_name']);
+        $attendee
+            ->setCalendarUserType('INDIVIDUAL')
+            ->setRole('REQ-PARTICIPANT')
+            ->setParticipationStatus('DECLINED')
+            ->setRsvp('FALSE');
+        $event->addAttendee($attendee);
+
+        $organizer = new Organizer(new Formatter());
+        $organizer->setValue($provider['email'])->setName($provider['first_name'] . ' ' . $provider['last_name']);
+        $event->setOrganizer($organizer);
+
+        // METHOD:CANCEL on the calendar component signals a cancellation (RFC 5545 §3.7.2).
+        $calendar = new Ics_calendar();
+
+        $calendar
+            ->setProdId('-//EasyAppointments//Open Source Web Scheduler//EN')
+            ->setTimezone(new DateTimeZone($provider['timezone']))
+            ->setMethod('CANCEL')
+            ->addEvent($event);
+
+        $calendarExport = new CalendarExport(new CalendarStream(), new Formatter());
+        $calendarExport->setDateTimeFormat('utc');
+        $calendarExport->addCalendar($calendar);
+
+        return $calendarExport->getStream();
+    }
+
     public function get_unavailability_stream(array $unavailability, array $provider): string
     {
         $unavailability_timezone = new DateTimeZone($provider['timezone']);
@@ -194,12 +299,16 @@ class Ics_file
         // Set up the event.
         $event = new CalendarEvent();
 
+        $uid = $unavailability['ics_uid']
+            ?? ($unavailability['id_caldav_calendar'] ?: $this->generate_uid($unavailability['id']));
+
         $event
             ->setStart($unavailability_start)
             ->setEnd($unavailability_end)
             ->setStatus('CONFIRMED')
             ->setSummary('Unavailability')
-            ->setUid($unavailability['id_caldav_calendar'] ?: $this->generate_uid($unavailability['id']));
+            ->setUid($uid)
+            ->setSequence((int) ($unavailability['ics_sequence'] ?? 0));
 
         $event->setDescription(str_replace("\n", "\\n", (string) $unavailability['notes']));
 

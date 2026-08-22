@@ -1,0 +1,111 @@
+<?php extend('layouts/backend_layout'); ?>
+
+<?php section('content'); ?>
+
+<div id="scheducal-settings-page" class="container backend-page">
+    <div class="row">
+        <div class="col-sm-3 offset-sm-1">
+            <?php component('settings_nav'); ?>
+        </div>
+        <div id="scheducal-settings" class="col-sm-6">
+            <form>
+                <fieldset>
+                    <div class="d-flex justify-content-between align-items-center border-bottom mb-4 py-2">
+                        <h4 class="text-black-50 mb-0 fw-light">
+                            <?= lang('scheducal') ?>
+                        </h4>
+
+                        <div>
+                            <a href="<?= site_url('integrations') ?>" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-chevron-left me-2"></i>
+                                <?= lang('back') ?>
+                            </a>
+
+                            <?php if (can('edit', PRIV_SYSTEM_SETTINGS)): ?>
+                                <button type="button" id="save-settings" class="btn btn-primary">
+                                    <i class="fas fa-check-square me-2"></i>
+                                    <?= lang('save') ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="scheducal-enabled"
+                                           data-field="scheducal_enabled">
+                                    <label class="form-check-label" for="scheducal-enabled">
+                                        <?= lang('scheducal_enabled') ?>
+                                    </label>
+                                </div>
+                                <div class="form-text text-muted">
+                                    <small>
+                                        <?= lang('scheducal_enabled_hint') ?>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="scheducal-api-key">
+                                    <?= lang('scheducal_api_key') ?>
+                                </label>
+                                <input id="scheducal-api-key" class="form-control"
+                                       data-field="scheducal_api_key">
+                                <div class="form-text text-muted">
+                                    <small>
+                                        <?= lang('scheducal_api_key_hint') ?>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="scheducal-api-secret">
+                                    <?= lang('scheducal_api_secret') ?>
+                                </label>
+                                <div class="input-group">
+                                    <input id="scheducal-api-secret" type="password" class="form-control"
+                                           data-field="scheducal_api_secret">
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-secret">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text text-muted">
+                                    <small>
+                                        <?= lang('scheducal_api_secret_hint') ?>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="scheducal-api-url">
+                                    <?= lang('scheducal_api_url') ?>
+                                </label>
+                                <input id="scheducal-api-url" class="form-control"
+                                       placeholder="https://api.scheducal.com/api/v1/appointments"
+                                       data-field="scheducal_api_url">
+                                <div class="form-text text-muted">
+                                    <small>
+                                        <?= lang('scheducal_api_url_hint') ?>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php slot('after_scheducal_fields'); ?>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php end_section('content'); ?>
+
+<?php section('scripts'); ?>
+
+<script src="<?= asset_url('assets/js/http/scheducal_settings_http_client.js') ?>"></script>
+<script src="<?= asset_url('assets/js/pages/scheducal_settings.js') ?>"></script>
+
+<?php end_section('scripts'); ?>

@@ -65,5 +65,12 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
+// Enable SSL for Azure MySQL (requires secure transport)
+if (getenv('DB_SSL') || strpos(Config::DB_HOST, 'mysql.database.azure.com') !== false) {
+    $db['default']['encrypt'] = [
+        'ssl_verify' => false,  // Azure uses Microsoft-managed certificates
+    ];
+}
+
 /* End of file database.php */
 /* Location: ./application/config/database.php */
