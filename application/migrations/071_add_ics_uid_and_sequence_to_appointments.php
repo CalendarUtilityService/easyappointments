@@ -65,10 +65,24 @@ class Migration_Add_ics_uid_and_sequence_to_appointments extends EA_Migration
             ]);
         }
 
-        // Backfill stable UIDs for all existing appointments that don't have one.
-        // Each appointment gets a unique UUID4 so future updates and cancellations
-        // carry the correct UID in their ICS files.
-        $appointments = $this->db->select('id')->get('appointments')->result_array();
+        // Backfill stable UIDs for appointments that don't have one yet.
+        //
+        // Only rows with a NULL or empty ics_uid are touched. The previous version
+        // rewrote every row unconditionally, which would regenerate UIDs that had
+        // already been issued to calendar clients - defeating the entire point of a
+        // stable UID, since receiving clients would treat the next update as a new
+        // event rather than a revision of the existing one. That mattered here: the
+        // columns were applied to the demo database manually without bumping
+        // ea_migrations.version, so this migration re-runs against rows that already
+        // have UIDs.
+        $appointments = $this->db
+            ->select('id')
+            ->group_start()
+            ->where('ics_uid IS NULL')
+            ->or_where('ics_uid', '')
+            ->group_end()
+            ->get('appointments')
+            ->result_array();
 
         foreach ($appointments as $appointment) {
             $this->db->update('appointments', ['ics_uid' => $this->generate_uuid4()], ['id' => $appointment['id']]);
