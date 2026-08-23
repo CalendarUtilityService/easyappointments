@@ -68,8 +68,15 @@ class Appointments extends EA_Controller
     {
         method('get');
 
-        // Validate appointment hash format to prevent injection
-        if (!empty($appointment_hash) && !preg_match('/^[a-fA-F0-9]{32}$/', $appointment_hash)) {
+        // Validate appointment hash format to prevent injection.
+        //
+        // Upstream 1.6.0 validates against /^[a-fA-F0-9]{32}$/ while
+        // Appointments_model generates random_string('alnum', 12). Those are
+        // mutually incompatible, so upstream's own check rejects every hash it
+        // issues and this route 400s for all appointments. Matching the generator
+        // instead. Restricting to alphanumerics is what provides the injection
+        // protection; the length was never the point.
+        if (!empty($appointment_hash) && !preg_match('/^[A-Za-z0-9]{8,64}$/', $appointment_hash)) {
             abort(400, 'Invalid appointment hash format.');
         }
 
