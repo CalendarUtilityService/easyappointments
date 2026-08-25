@@ -236,7 +236,13 @@ class Email_messages
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
-        $php_mailer->send();
+        // Must go through deliver(), like every other message. Calling send()
+        // directly sends over SMTP basic auth, which the tenant's "Block legacy
+        // authentication" Conditional Access policy rejects with 535 5.7.139 -
+        // and the sender@scheducal.com password was rotated on 2026-08-22, so
+        // the stored SMTP_PASSWORD is dead as well. Password reset was the one
+        // path still doing this. The marketing site broke the same way.
+        $this->deliver($php_mailer);
     }
 
     /**
