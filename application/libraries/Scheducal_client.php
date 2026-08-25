@@ -100,11 +100,19 @@ class Scheducal_client
             $appointment_start = new DateTime($appointment['start_datetime'], $appointment_timezone);
             $appointment_end = new DateTime($appointment['end_datetime'], $appointment_timezone);
 
-            // Build appointment management link
+            // Build appointment management link.
+            //
+            // Use booking/reschedule, which is what upstream's own Notifications
+            // library links to. appointments/index is a backwards-compatibility
+            // shim marked "@deprecated Since 1.5" for pre-1.5 links, and in 1.6.0
+            // it validates the hash against /^[a-fA-F0-9]{32}$/ while the model
+            // generates random_string('alnum', 12) - so it rejects every hash the
+            // application issues. Nobody upstream noticed because nothing upstream
+            // links there; we did because this line pointed at it.
             $appointment_link = '';
             if (!empty($this->config['base_url']) && !empty($appointment['hash']))
             {
-                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/appointments/index/' . $appointment['hash'];
+                $appointment_link = rtrim($this->config['base_url'], '/') . '/index.php/booking/reschedule/' . $appointment['hash'];
             }
 
             // Prepare data for ScheduCal API
