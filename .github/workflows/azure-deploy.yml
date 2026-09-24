@@ -16,6 +16,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        # The checkout token was persisted into .git/config and shipped to the
+        # web root. It expires with the job, but it should never be served.
+        persist-credentials: false
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -60,6 +64,13 @@ jobs:
         EOF
         sed -i "s/PLACEHOLDER_PASSWORD/${DB_PASSWORD}/" config.php
         sed -i 's/^        //' config.php
+
+    # The deploy package is the whole working tree, and App Service serves
+    # every file in it: /.git/config, /.git/index, /.github/workflows/* and
+    # /CLAUDE.md all returned 200 from demo.scheducal.com. Strip everything
+    # the running app does not need before packaging.
+    - name: Strip repository-only files from the deploy package
+      run: rm -rf .git .github .prawduct .claude CLAUDE.md MAINTAINING_THE_FORK.md
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
