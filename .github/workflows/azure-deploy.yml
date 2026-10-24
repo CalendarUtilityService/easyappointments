@@ -42,6 +42,13 @@ jobs:
     - name: Build assets
       run: npx gulp compile
 
+    # Asset URLs carry ?<token>. A fixed token lets browsers keep stale JS
+    # after a deploy, so stamp each deploy with its commit.
+    - name: Stamp the cache-busting token
+      run: |
+        sed -i "s/^\$config\['cache_busting_token'\] = '[^']*';/\$config['cache_busting_token'] = '${GITHUB_SHA::8}';/" application/config/app.php
+        grep -q "cache_busting_token'\] = '${GITHUB_SHA::8}'" application/config/app.php
+
     - name: Create Azure config.php
       env:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
