@@ -60,6 +60,10 @@ gh pr create -R CalendarUtilityService/easyappointments \
 - **`Graph_mailer.php` / `Email_messages.php`** — mail goes via Microsoft Graph,
   not SMTP, because the tenant blocks legacy auth. Do not reintroduce nodemailer
   or SMTP.
+- **`azure-deploy.yml` "Stamp the cache-busting token"** — each deploy sets
+  `cache_busting_token` in `application/config/app.php` to the commit. Upstream
+  bumps it per release; with a fixed token, browsers kept the pre-fix booking JS
+  after the reschedule fix deployed.
 
 ## Migrations
 
